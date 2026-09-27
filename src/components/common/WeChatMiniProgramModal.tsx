@@ -184,10 +184,10 @@ export const WeChatMiniProgramModal: React.FC<WeChatMiniProgramModalProps> = ({
                 <div className="rounded-xl border border-stone-200 bg-white p-3.5 space-y-1.5 hover:border-stone-400 transition-colors">
                   <div className="flex items-center gap-2 font-serif font-bold text-stone-900">
                     <BellRing className="w-4 h-4 text-amber-500" />
-                    <span>8:30 微信服务号/模板早报</span>
+                    <span>8:30 晨报与变量异动预警</span>
                   </div>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
-                    工作日清晨，微信服务通知直接弹出今日 3 件必读大事。洗漱或通勤途中点击即可 60 秒听完音频简报。
+                    工作日清晨微信自动推送 3 件焦点大事。一旦关注的事件触发「盯盘变量阈值」或「证伪红线」，微信服务通知第一时间精准提醒。
                   </p>
                 </div>
 
@@ -195,10 +195,10 @@ export const WeChatMiniProgramModal: React.FC<WeChatMiniProgramModalProps> = ({
                 <div className="rounded-xl border border-stone-200 bg-white p-3.5 space-y-1.5 hover:border-stone-400 transition-colors">
                   <div className="flex items-center gap-2 font-serif font-bold text-stone-900">
                     <Smartphone className="w-4 h-4 text-sky-500" />
-                    <span>触屏左右滑：红蓝对抗对撞</span>
+                    <span>触屏左右滑：红蓝量化对冲</span>
                   </div>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
-                    针对手机触屏专门调校的滑动手势：左滑看主流看好逻辑，右滑看做空者挑刺质疑，手势切换丝滑流畅。
+                    针对手机触屏专门调校的滑动手势：左滑看多方逻辑与指标，右滑看做空者挑刺质疑与风险定量锚点，单手快速把握两面底牌。
                   </p>
                 </div>
 
@@ -206,10 +206,10 @@ export const WeChatMiniProgramModal: React.FC<WeChatMiniProgramModalProps> = ({
                 <div className="rounded-xl border border-stone-200 bg-white p-3.5 space-y-1.5 hover:border-stone-400 transition-colors">
                   <div className="flex items-center gap-2 font-serif font-bold text-stone-900">
                     <Share2 className="w-4 h-4 text-emerald-600" />
-                    <span>行业群与朋友圈一键发卡</span>
+                    <span>媒体沉默盲区与高清卡长图</span>
                   </div>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
-                    一键长按保存带见微认证水印的高清金句长图，或生成微信原生转发卡片，直接在微信高管群分享理性深度研判。
+                    一键生成包含「媒体沉默盲区 (Blindspot)」与利益图谱的高清长图，在微信高管群与朋友圈分享，直击谁在发声谁在回避。
                   </p>
                 </div>
 
@@ -217,10 +217,10 @@ export const WeChatMiniProgramModal: React.FC<WeChatMiniProgramModalProps> = ({
                 <div className="rounded-xl border border-stone-200 bg-white p-3.5 space-y-1.5 hover:border-stone-400 transition-colors">
                   <div className="flex items-center gap-2 font-serif font-bold text-stone-900">
                     <Radio className="w-4 h-4 text-purple-500" />
-                    <span>多端预测契约实时同步</span>
+                    <span>置信度契约与证伪红线同步</span>
                   </div>
                   <p className="text-stone-600 text-[11px] leading-relaxed">
-                    电脑端存入的「趋势预测账本」和关注领域，手机微信小程序自动同步；到期时由真实新闻自动校验履约。
+                    电脑端存入的 Tetlock 概率预测账本，手机微信自动同步。到期时系统由真实语料全自动回测核验，杜绝事后诸葛亮。
                   </p>
                 </div>
               </div>

@@ -3,7 +3,18 @@
 > 生成日期：2026-09-04　｜　覆盖：本会话 30+ 整改/研发批次　｜　配套：`README.md`、`FUNCTION_LOGIC_AUDIT_V2.md`（最新逻辑审计）、`FUNCTION_SCIENTIFIC_REVIEW.md`（科学性判定）、`SCIENCE_EVALUATION_PROTOCOL.md`（评测协议）、`REMEDIATION_CHECKLIST.md`（逐批 A–AW）、`DATA_PIPELINE_DESIGN.md`
 > 目标读者：产品/工程验收、后续新会话接手。
 
-## 0. 2026-09-12 现状快照（最新，优先阅读）
+## 0. 2026-09-27 现状快照（最新，优先阅读）
+
+- **重大功能升级（2026-09-27）**：
+  1. **今日大事脉搏 (DailyFocusPulse)**：首页置顶，提供宏观定调、Top 3~5 重磅大事（突发拐点/关键推进/持续发酵状态标签）、核心判断与纵深脉络、2分钟音频速览；
+  2. **红蓝博弈天平 (DialecticalMatrixSection)**：详情页置顶展示主流看好 vs 反方批判双栏对抗、争议焦点本质、前史时间线溯源、利益相关方得失图谱；
+  3. **条件情景树与证伪线 (TrendScenarioSection)**：短期首个验证节点、中期分水岭、关键盯盘变量、白纸黑字证伪失效红线，并支持「一键存入预测账本」实现到期自动回测；
+  4. **微信小程序使用生态 (WeChatMiniProgramModal)**：Header/Footer 快速呼出拟真太阳码、8:30微信晨报、触屏左右滑动红蓝对撞、微信群长图分享、预测账本多端实时同步与 `<web-view>` 接入规范。
+- **语料与存储**：真实语料库；默认零演示数据，`JIANWEI_ENABLE_DEMO_DATA=1` 才允许加载历史演示语料；`data/corpus.db`（SQLite 主存储）+ `data/corpus.json`（兼容快照）。
+- **测试与工程指标**：`pnpm lint` (`tsc --noEmit`) 0 错误、`pnpm build` (`vite build`) 顺利编译。
+- **详见文档**：完整改动记录请参阅 `CHANGELOG.md`。
+
+## 0.1 历史快照（2026-09-12 阶段）
 
 - **语料**：382 篇真实 RSS（来自人民网等），历史演示文章 0 篇；默认零演示数据，`JIANWEI_ENABLE_DEMO_DATA=1` 才允许加载历史演示语料。
 - **持久化**：`data/corpus.db`（SQLite 主存储）+ `data/corpus.json`（兼容快照）；写入采用事务，重启不丢；启动迁移会按规范 URL 合并历史重复条目。

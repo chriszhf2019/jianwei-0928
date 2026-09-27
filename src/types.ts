@@ -129,11 +129,21 @@ export interface SevenWSummary {
 }
 
 /** 趋势为条件情景，不包含伪精确概率。 */
+export interface TrendVariableMonitor {
+  name: string;
+  status: 'normal' | 'warning' | 'alert'; // 正常 / 接近阈值 / 触发反转信号
+  currentValue: string;
+  threshold: string;
+  implication: string;
+}
+
 export interface TrendForecastData {
   shortTerm: string;
   midTerm: string;
   keyVariables: string;
   invalidation: string;
+  baseProbability?: number; // 0-100 基线情景概率
+  variablesMonitor?: TrendVariableMonitor[]; // 动态盯盘变量状态监控
 }
 
 /** 风险审稿固定四问，便于快速阅读和逐项复核。 */
@@ -388,6 +398,21 @@ export interface NewsArticle {
   coreLogic?: { essence: string; points: string[]; counterIntuitive?: string };
   /** 正反方博弈（AI 深读生成）：多空论点 + 分歧焦点 + 力量判断 */
   bullBearDebate?: { bull: Array<{ point: string; basis?: string }>; bear: Array<{ point: string; basis?: string }>; coreDispute?: string; read?: string };
+  /** 定量对冲锚点（AlphaSense 风格：真实数据指标对冲定性论述） */
+  quantitativeAnchors?: Array<{
+    name: string;
+    value: string;
+    delta?: string;
+    direction: 'bull' | 'bear' | 'neutral';
+    benchmark: string;
+    meaning: string;
+  }>;
+  /** 报道阵营分布与沉默盲区（Ground News 风格：谁在报道，谁在沉默） */
+  mediaBlindspot?: {
+    breakdown: Array<{ category: string; count: number; percentage: number; stanceBias: string }>;
+    silentSector?: string;
+    blindspotWarning?: string;
+  };
   /** AI 补充相关报道线索（记忆召回，非实时联网） */
   relatedNews?: Array<{ title: string; media: string; why: string }>;
   /** 身份化「正反双向预测」（/api/skill/personaforecast 生成，按 personaId 累积） */
