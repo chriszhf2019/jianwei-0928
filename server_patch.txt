@@ -1,0 +1,11 @@
+// AI 成本监控端点 (在 startServer 函数内)
+app.get("/api/ai/cost", (req, res) => {
+  try {
+    const usage = getAIUsage();
+    const metrics = getCostMetrics(usage);
+    res.json(metrics);
+  } catch (e: any) {
+    console.error("Cost monitor error:", e);
+    res.status(500).json({ error: "Failed to get cost metrics" });
+  }
+});

@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/* Tailwind v4 主题接线：让 font-sans / font-serif / font-mono 工具类使用站内字体栈 */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Songti SC', STSong, 'Noto Serif CJK SC', Georgia, serif;
+  --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    --paper-warm: #FAF8F5;
+    --paper-card: #FFFFFF;
+    --paper-soft: #F8F6F3;
+    --panel-edge: rgba(15, 23, 42, 0.08);
+    --panel-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    --economist-red: #E3120B;
+    --ft-salmon: #FFF1E5;
+    --proof-blue: #0D47A1;
+    --ink-dark: #1E293B;
+  }
+
+  html, body, #root {
+    min-height: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background:
+      radial-gradient(circle at top left, rgba(225, 232, 240, 0.55), transparent 28%),
+      linear-gradient(180deg, #faf8f5 0%, #f7f4ef 100%);
+    color: var(--ink-dark);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+
+  .brand-panel {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--panel-edge);
+    box-shadow: var(--panel-shadow);
+  }
+
+  .brand-panel-soft {
+    background: linear-gradient(180deg, #fffdfb 0%, var(--paper-soft) 100%);
+    border: 1px solid var(--panel-edge);
+    box-shadow: var(--panel-shadow);
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.font-serif-sc {
+  font-family: 'Songti SC', STSong, 'Noto Serif CJK SC', Georgia, serif;
+}
+
+.font-sans-ui {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+}
+
+.font-mono-code {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.font-cinzel {
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Custom newspaper hairline divider */
+.hairline-b {
+  border-bottom: 1px solid rgba(30, 41, 59, 0.12);
+}
+.hairline-t {
+  border-top: 1px solid rgba(30, 41, 59, 0.12);
+}
+.hairline-r {
+  border-right: 1px solid rgba(30, 41, 59, 0.12);
+}
+.hairline-l {
+  border-left: 1px solid rgba(30, 41, 59, 0.12);
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 41, 59, 0.35);
+}
