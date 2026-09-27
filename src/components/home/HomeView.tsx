@@ -6,6 +6,7 @@ import {
   RadarKeyword,
   MorningBriefing,
 } from '../../types';
+import { DailyFocusPulse } from './DailyFocusPulse';
 import { HomeHeroStatus } from './HomeHeroStatus';
 import { MorningBriefingHero } from './MorningBriefingHero';
 import { StandardModeFeed } from './StandardModeFeed';
@@ -548,6 +549,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 font-sans">
+      {/* 每日核心入口：今日大事脉搏 (Top 3~5 大事、宏观定调、演进状态与2分钟音频) */}
+      <DailyFocusPulse
+        articles={articles}
+        todayArticles={todayFeed}
+        briefing={briefing}
+        persona={selectedPersona}
+        breaking={breaking}
+        hotWords={hotWords}
+        onSelectArticle={onSelectArticle}
+        onOpenAudio={onOpenAudioBriefing}
+        onSelectHotWord={handleHotWordSelect}
+      />
+
       {briefing && (
         <MorningBriefingHero
           briefing={briefing}

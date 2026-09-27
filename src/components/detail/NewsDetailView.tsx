@@ -8,6 +8,8 @@ import { RelevanceIdentityTab } from './RelevanceIdentityTab';
 import { RippleEffectTab } from './RippleEffectTab';
 import { DeepSpectrumTab } from './DeepSpectrumTab';
 import { ForecastArenaTab } from './ForecastArenaTab';
+import { DialecticalMatrixSection } from './DialecticalMatrixSection';
+import { TrendScenarioSection } from './TrendScenarioSection';
 import { KeyTermNote } from '../common/KeyTermHighlight';
 import { FeatureSummary } from '../common/FeatureSummary';
 import type { FeatureSummaryId } from '../../utils/featureSummaries';
@@ -665,6 +667,32 @@ export const NewsDetailView: React.FC<NewsDetailViewProps> = ({
           </button>
         </div>
       )}
+
+      {/* 核心穿透第 2 层：内幕溯源与红蓝博弈天平（相反观点对撞） */}
+      <DialecticalMatrixSection
+        article={article}
+        onRunSkill={onRunSkill}
+      />
+
+      {/* 核心穿透第 3 层：未来趋势推演与证伪失效线（情景树与预测账本） */}
+      <TrendScenarioSection
+        article={article}
+        activePersona={activePersona}
+        onRunSkill={onRunSkill}
+        onSaveContract={onSaveContract}
+      />
+
+      {/* 进阶专业研判：六维认知光谱与沙盒推演 */}
+      <div className="pt-4 border-t-2 border-dashed border-stone-300">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="text-xs font-serif font-black text-stone-900 uppercase tracking-wider">
+            进阶专业研判 · 六维事实与因果沙盒
+          </div>
+          <span className="text-[11px] font-mono text-stone-400">
+            按需深度下潜：对象核查 / 因果树 / 身份透镜 / 深度全览
+          </span>
+        </div>
+      </div>
 
       {/* 4-Stage Cognitive Path Navigation Tabs */}
       <div className="sticky top-28 lg:top-16 z-30 bg-[#FAF8F5]/95 backdrop-blur-md pt-2 border-b-2 border-stone-900">

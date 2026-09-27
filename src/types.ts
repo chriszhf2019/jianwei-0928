@@ -35,6 +35,21 @@ export type ReadingMode =
   | 'magazine'         // 现代杂志 (Kinfolk · 界面新闻)
   | 'immersive';       // 沉浸叙事 (NYT Longform · The Pudding)
 
+export type NewsSkill =
+  | 'plain'
+  | 'dehydrate'
+  | 'interpret'
+  | 'sevenw'
+  | 'verdict'
+  | 'trend'
+  | 'risk'
+  | 'timeline'
+  | 'stakeholders'
+  | 'corelogic'
+  | 'debate'
+  | 'relatednews'
+  | 'entitycheck';
+
 export type SpectrumLayerType = 'micro_signal' | 'interests' | 'logic_chain' | 'data_signal' | 'deduction';
 
 export interface SpectrumLayer {

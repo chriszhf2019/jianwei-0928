@@ -15,7 +15,8 @@ import {
   ChevronDown,
   Settings as SettingsIcon,
   MapPin,
-  Bell
+  Bell,
+  QrCode
 } from 'lucide-react';
 import { USER_PERSONAS } from '../data/intelligenceData';
 import { FEATURE_SUMMARIES } from '../utils/featureSummaries';
@@ -31,6 +32,7 @@ interface HeaderProps {
   onOpenCognitiveModel?: () => void;
   onOpenSettings: () => void;
   onOpenSubscription?: () => void;
+  onOpenWeChatModal?: () => void;
   nickname?: string;
   optimistic?: number | null;
   negative?: number | null;
@@ -46,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAnalyzeModal,
   onOpenSettings,
   onOpenSubscription,
+  onOpenWeChatModal,
 }) => {
   const [showPersonaMenu, setShowPersonaMenu] = useState(false);
 
@@ -124,6 +127,18 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <Bell className="w-4 h-4 text-amber-600" />
                 <span className="hidden sm:inline text-xs font-serif font-bold text-stone-700">晨报</span>
+              </button>
+            )}
+
+            {/* WeChat Mini Program Button */}
+            {onOpenWeChatModal && (
+              <button
+                onClick={onOpenWeChatModal}
+                className="p-2 sm:px-3 sm:py-2 text-stone-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg border border-stone-300/80 bg-white/60 transition-colors flex items-center space-x-1.5"
+                title="微信小程序：扫码即用、每日8:30微信晨报推送与触屏手势"
+              >
+                <QrCode className="w-4 h-4 text-[#07C160]" />
+                <span className="hidden sm:inline text-xs font-serif font-bold text-stone-700">小程序</span>
               </button>
             )}
 

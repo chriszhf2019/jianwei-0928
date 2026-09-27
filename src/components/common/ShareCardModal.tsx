@@ -403,10 +403,15 @@ export const ShareCardModal: React.FC<ShareCardModalProps> = ({
               {/* Footer */}
               <div className="pt-2 border-t border-stone-200 flex items-center justify-between text-[10px] text-stone-500 font-sans">
                 <span>出处：{prof?.displayName || article.sourceName || '权威全景信源'}</span>
-                <span className="font-bold text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>逻辑因果链已核验</span>
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[9px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded">
+                    微信小程序 · 见微情报
+                  </span>
+                  <span className="font-bold text-emerald-600 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span>因果链已核验</span>
+                  </span>
+                </div>
               </div>
             </div>
 

@@ -69,6 +69,9 @@ const ShareCardModal = lazy(() =>
 const SubscriptionModal = lazy(() =>
   import('./components/common/SubscriptionModal').then((module) => ({ default: module.SubscriptionModal }))
 );
+const WeChatMiniProgramModal = lazy(() =>
+  import('./components/common/WeChatMiniProgramModal').then((module) => ({ default: module.WeChatMiniProgramModal }))
+);
 
 const ViewLoading = () => (
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -275,6 +278,7 @@ export const App: React.FC = () => {
   const [isCognitiveModelOpen, setIsCognitiveModelOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isWeChatModalOpen, setIsWeChatModalOpen] = useState(false);
   const [shareCardArticle, setShareCardArticle] = useState<NewsArticle | null>(null);
   const [activeTermExplain, setActiveTermExplain] = useState<string | null>(null);
   const [morningBriefing, setMorningBriefing] = useState<MorningBriefing | null>(null);
@@ -882,6 +886,7 @@ export const App: React.FC = () => {
         nickname={nickname}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenSubscription={() => setIsSubscriptionOpen(true)}
+        onOpenWeChatModal={() => setIsWeChatModalOpen(true)}
       />
 
       {authRequired && authUser?.isGuest && !isAuthModalOpen && !mustChangePassword && (
@@ -1087,6 +1092,13 @@ export const App: React.FC = () => {
                 className="hover:text-white transition-colors"
               >
                 今日晨间简报 (AI语音)
+              </button>
+              <span>·</span>
+              <button
+                onClick={() => setIsWeChatModalOpen(true)}
+                className="text-[#07C160] hover:text-emerald-400 font-serif font-bold transition-colors flex items-center gap-1"
+              >
+                <span>微信小程序</span>
               </button>
               <span>·</span>
               <button
@@ -1378,6 +1390,14 @@ export const App: React.FC = () => {
             onSaved={() => {
               void refreshMorningBriefing();
             }}
+          />
+        )}
+
+        {isWeChatModalOpen && (
+          <WeChatMiniProgramModal
+            isOpen={isWeChatModalOpen}
+            onClose={() => setIsWeChatModalOpen(false)}
+            nickname={nickname}
           />
         )}
       </Suspense>
