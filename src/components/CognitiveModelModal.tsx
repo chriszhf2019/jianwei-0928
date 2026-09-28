@@ -289,6 +289,57 @@ export const CognitiveModelModal: React.FC<CognitiveModelModalProps> = ({
           );
         })()}
 
+        {/* Anti-Fluff Delivery Axioms */}
+        <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4 sm:p-5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-xs font-serif font-black text-amber-950">
+              <ShieldCheck className="w-4 h-4 text-amber-700" />
+              <span>见微交付公理：拒绝片汤话 · 有理有据 · 决策可落地</span>
+            </div>
+            <span className="text-[10px] font-mono text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded font-bold">
+              ANTI-FLUFF STANDARD
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs text-amber-900/90 font-serif">
+            <div className="bg-white/80 border border-amber-200/60 rounded-lg p-3 space-y-1">
+              <div className="font-bold text-stone-950 text-xs flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                拒绝万能套话 ➔ 极度针对
+              </div>
+              <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
+                禁绝“机遇与挑战并存、保持审慎关注”等空话；必须指名道姓、具象落点到具体公司、产品与法规。
+              </p>
+            </div>
+            <div className="bg-white/80 border border-amber-200/60 rounded-lg p-3 space-y-1">
+              <div className="font-bold text-stone-950 text-xs flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                拒绝无端断言 ➔ 讲清传导机制
+              </div>
+              <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
+                说明因果发生的物理或商业机制（如上游产能受限如何拉长交付、挤压利润），不把相关性当因果。
+              </p>
+            </div>
+            <div className="bg-white/80 border border-amber-200/60 rounded-lg p-3 space-y-1">
+              <div className="font-bold text-stone-950 text-xs flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                拒绝凭空捏造 ➔ 证据原文锚定
+              </div>
+              <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
+                所有核心事实严格溯源至已核实的独立信源与原文引句；AI 推断严格标注，绝不把模型记忆包装成事实。
+              </p>
+            </div>
+            <div className="bg-white/80 border border-amber-200/60 rounded-lg p-3 space-y-1">
+              <div className="font-bold text-stone-950 text-xs flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                拒绝假大空黑话 ➔ 透彻人话易懂
+              </div>
+              <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
+                用最接地气的生活化比喻和直给的大白话拆解复杂局面，让不同背景的决策者秒懂“对我意味着什么”。
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Global Feedback Loop Matrix */}
         <div className="bg-stone-900 text-stone-200 p-5 rounded-xl space-y-3 font-sans">
           <div className="flex items-center space-x-2 text-xs font-serif font-bold text-red-400">

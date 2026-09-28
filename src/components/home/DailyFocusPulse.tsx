@@ -68,7 +68,7 @@ export const DailyFocusPulse: React.FC<DailyFocusPulseProps> = ({
       let statusType: 'breaking' | 'pivot' | 'ongoing' = 'ongoing';
       let statusLabel = '持续发酵';
 
-      if (isBreaking || index === 0) {
+      if (isBreaking) {
         statusType = 'breaking';
         statusLabel = '突发拐点';
       } else if (hasMilestone || hasContrarian) {

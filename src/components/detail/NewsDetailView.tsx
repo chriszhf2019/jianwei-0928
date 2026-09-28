@@ -45,7 +45,15 @@ import {
   GitMerge,
   Crosshair,
   SearchCheck,
-  ChevronDown
+  ChevronDown,
+  Zap,
+  Scale,
+  Compass,
+  ShieldAlert,
+  History,
+  Target,
+  Activity,
+  CheckCircle2
 } from 'lucide-react';
 
 // 浅层外部信源条目缺少深度认知字段时的优雅占位
@@ -138,6 +146,9 @@ export const NewsDetailView: React.FC<NewsDetailViewProps> = ({
   onOpenShareCard,
 }) => {
   const [activeTab, setActiveTab] = useState<CognitiveDetailTab>('seven_elements');
+  const [viewMode, setViewMode] = useState<'brief' | 'workbench'>('workbench');
+  const [workbenchStep, setWorkbenchStep] = useState<'facts' | 'debate' | 'identity' | 'future'>('facts');
+  const [factsSubTab, setFactsSubTab] = useState<'seven' | 'timeline' | 'entity' | 'logic' | 'spectrum'>('seven');
   const [probeQuestion, setProbeQuestion] = useState('');
   const [probeAnswer, setProbeAnswer] = useState<string | null>(null);
   const [probeFallback, setProbeFallback] = useState(false);
@@ -612,221 +623,434 @@ export const NewsDetailView: React.FC<NewsDetailViewProps> = ({
         )}
       </div>
 
-      <div className="bg-white border border-stone-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-        <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-200">
-          <div className="text-xs font-serif font-bold uppercase tracking-[0.12em] text-stone-500">事实与判断</div>
-          <div className="text-[10px] font-mono text-stone-400">先核验，再判断</div>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2 text-[9px] font-bold">
-          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-800">事实：可核验信息层</span>
-          <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">判断：AI 解读层</span>
-          <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-sky-800">预测：假设前瞻层</span>
-        </div>
-        <div className="mt-3 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-[10px] text-stone-600">
-          口径：AI 解读和预测都不是事实裁决；它们是帮助理解背景、争议和可能方向的辅助判断。
-        </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
-            <div className="text-[10px] font-serif font-bold uppercase tracking-[0.12em] text-stone-500">这件事说了什么</div>
-            <p className="mt-2 text-sm leading-relaxed text-stone-800">{truthSummary || '该条新闻目前缺少可读的核心判断，建议继续查看事实与背景。'}</p>
-          </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
-            <div className="text-[10px] font-serif font-bold uppercase tracking-[0.12em] text-stone-500">背景是什么</div>
-            <p className="mt-2 text-sm leading-relaxed text-stone-800">{backgroundSummary}</p>
-          </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
-            <div className="text-[10px] font-serif font-bold uppercase tracking-[0.12em] text-stone-500">有没有相反说法</div>
-            <p className="mt-2 text-sm leading-relaxed text-stone-800">{counterViewSummary}</p>
-          </div>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
-            <div className="text-[10px] font-serif font-bold uppercase tracking-[0.12em] text-stone-500">未来可能怎样</div>
-            <p className="mt-2 text-sm leading-relaxed text-stone-800">{futureSummary}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* AI 技能条：一句话解读 / 趋势预测 / 风险挑刺 / 大白话 / 脱水 / 关联背景 */}
-      {/*（7W/趋势/风险入口已整合进首页卡片分析盒，见 StandardModeFeed/CardInsightBox）*/}
-
-      {isShallow && enrichPhase !== 'done' && (
-        <div className="bg-amber-50/60 border border-amber-200 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <div className="text-sm font-serif font-bold text-stone-900">深度分析</div>
-            <p className="text-[11px] text-stone-500 mt-0.5">
-              当前为原文摘要，深层字段尚未生成。
-            </p>
-          </div>
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* 顶层阅读模式切换器：⚡ 30秒极简速读 vs 🔬 4步深度研判工作台 */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-stone-100 p-1.5 rounded-2xl border border-stone-200">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => void handleGenerateDeepAnalysis()}
-            disabled={enrichPhase === 'loading'}
-            className="shrink-0 px-4 py-2.5 bg-[#E3120B] hover:bg-red-700 disabled:opacity-50 text-white rounded-lg text-xs font-serif font-bold inline-flex items-center gap-1.5"
+            onClick={() => setViewMode('brief')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-serif font-bold transition-all cursor-pointer ${
+              viewMode === 'brief'
+                ? 'bg-white text-stone-950 shadow-xs border border-stone-300 ring-1 ring-stone-900/10'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-stone-200/50'
+            }`}
           >
-            {enrichPhase === 'loading' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            {enrichPhase === 'loading' ? '正在生成…' : '生成深度分析'}
+            <Zap className="w-4 h-4 text-amber-500" />
+            <span>⚡ 30秒极简速读</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('workbench')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-serif font-bold transition-all cursor-pointer ${
+              viewMode === 'workbench'
+                ? 'bg-stone-900 text-white shadow-xs'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-stone-200/50'
+            }`}
+          >
+            <Layers className="w-4 h-4 text-red-400" />
+            <span>🔬 4步深度研判工作台</span>
           </button>
         </div>
-      )}
 
-      {/* 核心穿透第 2 层：内幕溯源与红蓝博弈天平（相反观点对撞） */}
-      <DialecticalMatrixSection
-        article={article}
-        onRunSkill={onRunSkill}
-      />
-
-      {/* 核心穿透第 3 层：未来趋势推演与证伪失效线（情景树与预测账本） */}
-      <TrendScenarioSection
-        article={article}
-        activePersona={activePersona}
-        onRunSkill={onRunSkill}
-        onSaveContract={onSaveContract}
-      />
-
-      {/* 进阶专业研判：六维认知光谱与沙盒推演 */}
-      <div className="pt-4 border-t-2 border-dashed border-stone-300">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="text-xs font-serif font-black text-stone-900 uppercase tracking-wider">
-            进阶专业研判 · 六维事实与因果沙盒
-          </div>
-          <span className="text-[11px] font-mono text-stone-400">
-            按需深度下潜：对象核查 / 因果树 / 身份透镜 / 深度全览
-          </span>
+        <div className="text-[11px] font-mono text-stone-500 pr-2 hidden sm:block">
+          {viewMode === 'brief' ? '高管速览模式 · 30秒把握4大命门' : '闭环推演 · 严密事实与红蓝对撞'}
         </div>
       </div>
 
-      {/* 4-Stage Cognitive Path Navigation Tabs */}
-      <div className="sticky top-28 lg:top-16 z-30 bg-[#FAF8F5]/95 backdrop-blur-md pt-2 border-b-2 border-stone-900">
-        <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto no-scrollbar pb-2">
-          {tabsList.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-serif font-bold whitespace-nowrap transition-all flex items-center space-x-2 ${
-                  isActive
-                    ? 'bg-stone-900 text-white shadow-sm'
-                    : 'bg-white text-stone-700 border border-stone-300 hover:border-stone-500 hover:bg-stone-100'
-                }`}
-              >
-                <span className={`text-[10px] font-mono px-1 rounded ${
-                  isActive ? 'bg-stone-800 text-red-400' : 'bg-stone-100 text-stone-500'
-                }`}>
-                  {tab.step}
-                </span>
-                {tab.icon}
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <FeatureSummary featureId={tabFeatureId[activeTab]} compact />
-
-      {/* Render Active Cognitive Tab Content */}
-      {(activeTab === 'seven_elements' || activeTab === 'relevance_identity' || activeTab === 'deep_spectrum') && (
-        <div className="mb-3 text-[10px] text-stone-400">
-          <details>
-            <summary className="cursor-pointer hover:text-stone-700">颜色标记说明</summary>
-            <div className="mt-1">
-              <KeyTermNote />
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* 模式 A：⚡ 30秒极简高管速读卡 (Executive Brief Card) */}
+      {/* ────────────────────────────────────────────────────────── */}
+      {viewMode === 'brief' && (
+        <div className="rounded-2xl border-2 border-stone-900 bg-white p-5 sm:p-7 shadow-lg space-y-5 animate-in fade-in duration-200">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-500" />
+              <h3 className="text-base sm:text-lg font-serif font-black text-stone-950">
+                今日决策战报 · 30 秒知晓全局
+              </h3>
             </div>
-          </details>
+            <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300">
+              去伪存真 · 极简提炼
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 1. 核心定调 (So What) */}
+            <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-stone-900">
+                <Sparkles className="w-3.5 h-3.5 text-[#E3120B]" />
+                <span>① 核心定调 · So What</span>
+              </div>
+              <p className="text-sm font-serif font-bold text-stone-950 leading-relaxed">
+                “{article.oneSentenceVerdict || article.summary || article.title}”
+              </p>
+            </div>
+
+            {/* 2. 正反博弈命门 (The Pivot) */}
+            <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-amber-900">
+                <Scale className="w-3.5 h-3.5 text-amber-700" />
+                <span>② 双方争论的命门焦点 (The Pivot)</span>
+              </div>
+              <p className="text-sm font-serif font-bold text-stone-900 leading-relaxed">
+                “{article.bullBearDebate?.coreDispute || '多空分歧集中于商业化兑现速度与供应链抗压能力。'}”
+              </p>
+              {article.bullBearDebate?.read && (
+                <div className="text-[11px] font-mono text-amber-800">
+                  天平倾斜：{article.bullBearDebate.read}
+                </div>
+              )}
+            </div>
+
+            {/* 3. 与我何干：专属身份行动备忘 */}
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-emerald-950">
+                  <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>③ 与我何干 · 专属身份行动备忘</span>
+                </div>
+                <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                  当前角色：{activePersona.name}
+                </span>
+              </div>
+              {(() => {
+                const p = (article.personaImpacts || []).find((item) => item.personaId === activePersona.id);
+                return (
+                  <div className="space-y-1 text-xs font-serif text-stone-800">
+                    <p className="font-bold text-emerald-950">
+                      直击对策：{p?.recommendedAction || `针对${activePersona.name}身份保持对事件主线进展的审慎跟踪与防御性预案。`}
+                    </p>
+                    <p className="text-[11px] text-stone-600 font-sans">
+                      关键风险：{p?.threatRisk || '行业预期修正或宏观外溢带来的波动冲击。'}
+                    </p>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* 4. 波普尔失效红线 */}
+            <div className="rounded-xl border border-red-200 bg-red-50/70 p-4 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-serif font-bold text-red-950">
+                <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                <span>④ 证伪红线 · 出现什么代表判断落空</span>
+              </div>
+              <p className="text-xs sm:text-sm font-serif font-bold text-red-950 leading-relaxed">
+                “{typeof article.trendForecastText === 'object' && article.trendForecastText !== null && 'invalidation' in article.trendForecastText
+                  ? (article.trendForecastText as any).invalidation
+                  : article.bullBearDebate?.bear?.[0]?.point
+                    ? `核心反方论点被实证（如：${article.bullBearDebate.bear[0].point}）`
+                    : '核心前置假设被后续事实推翻或主要反向指标突破预警阈值。'}”
+              </p>
+            </div>
+          </div>
+
+          {/* 切换至 4 步深度研判工作台 */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200">
+            <span className="text-xs text-stone-500 font-serif">
+              需要查看完整的定量指标、媒体立场沉默盲区或条件情景树？
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setViewMode('workbench');
+                setWorkbenchStep('facts');
+              }}
+              className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white rounded-xl text-xs font-serif font-bold transition-all inline-flex items-center gap-2 shadow-xs cursor-pointer"
+            >
+              <span>展开 4 步深度研判工作台</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
-      <div className="min-h-[400px]">
-        {activeTab === 'seven_elements' && <SevenElementsTab article={article} onRunSkill={onRunSkill} contextArticles={contextArticles} onOpenArticle={onOpenArticle} />}
 
-        {activeTab === 'entity_check' && <EntityCheckTab article={article} onRunSkill={onRunSkill} />}
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* 模式 B：🔬 4 步深度研判工作台 (4-Stage Decision Workbench) */}
+      {/* ────────────────────────────────────────────────────────── */}
+      {viewMode === 'workbench' && (
+        <div className="space-y-6">
+          {/* 4步决策导航栏（吸顶、清晰、杜绝混乱堆叠） */}
+          <div className="sticky top-20 lg:top-14 z-30 bg-[#FAF8F5]/95 backdrop-blur-md py-2 border-b-2 border-stone-900">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                {
+                  id: 'facts' as const,
+                  stepNum: '第 1 步',
+                  label: '事实核心与背景',
+                  icon: Sparkles,
+                  desc: '7要素拆解 · 前因溯源 · 利益网络',
+                },
+                {
+                  id: 'debate' as const,
+                  stepNum: '第 2 步',
+                  label: '红蓝博弈与真相',
+                  icon: Scale,
+                  desc: '正反天平 · 定量对冲 · 沉默盲区',
+                },
+                {
+                  id: 'identity' as const,
+                  stepNum: '第 3 步',
+                  label: '与我何干 (身份透镜)',
+                  icon: UserCheck,
+                  desc: '6类角色专属冲击 · 风险 · 备忘',
+                },
+                {
+                  id: 'future' as const,
+                  stepNum: '第 4 步',
+                  label: '未来推演与证伪',
+                  icon: Compass,
+                  desc: '两阶段情景 · 变量雷达 · 证伪红线',
+                },
+              ].map((step) => {
+                const isActive = workbenchStep === step.id;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => {
+                      setWorkbenchStep(step.id);
+                      window.scrollTo({ top: 380, behavior: 'smooth' });
+                    }}
+                    className={`p-2.5 sm:p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-stone-900 text-white border-stone-900 shadow-md ring-1 ring-stone-900'
+                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                          isActive ? 'bg-stone-800 text-red-400' : 'bg-stone-100 text-stone-500'
+                        }`}
+                      >
+                        {step.stepNum}
+                      </span>
+                      <step.icon className={`w-3.5 h-3.5 ${isActive ? 'text-red-400' : 'text-stone-400'}`} />
+                    </div>
+                    <div className="font-serif font-bold text-xs sm:text-sm mt-1 truncate">
+                      {step.label}
+                    </div>
+                    <div
+                      className={`text-[10px] truncate mt-0.5 hidden sm:block ${
+                        isActive ? 'text-stone-300' : 'text-stone-400'
+                      }`}
+                    >
+                      {step.desc}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-        {activeTab === 'logic_tree' && (
-          <div className="space-y-6">
-            {/* 因果逻辑树 */}
-            {article.logicTree ? (
-              <LogicTreeTab logicTree={article.logicTree} />
-            ) : (
-              <MissingDeep feature="因果逻辑树" note={deepNote} />
-            )}
-            {/* 涟漪效应与多源验证（合并进同一“因果与涟漪”页） */}
-            {article.rippleEffect ? (
-              <div>
-                <div className="mb-2 flex items-center gap-2 text-xs font-serif font-bold text-[#0284C7] uppercase tracking-wider">
-                  <Waves className="w-4 h-4" />
-                  <span>传导与涟漪（二）· 承接上面的因果链看影响如何扩散</span>
-                </div>
-                <RippleEffectTab rippleEffect={article.rippleEffect} />
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* 第 1 步：事实核心与背景 (Facts & Context) */}
+          {/* ────────────────────────────────────────────────────────── */}
+          {workbenchStep === 'facts' && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              {/* 子导航：7要素大盘 / 前因溯源 / 对象核查 / 因果逻辑树 / 深度全览 */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 border-b border-stone-200">
+                {[
+                  { id: 'seven' as const, label: '7要素事实大盘 (7W)', icon: Sparkles },
+                  { id: 'timeline' as const, label: '前因溯源与利益网络', icon: History },
+                  { id: 'entity' as const, label: '对象实体核查', icon: SearchCheck },
+                  { id: 'logic' as const, label: '因果逻辑树与涟漪', icon: GitFork },
+                  { id: 'spectrum' as const, label: '五层光谱深度全览', icon: Layers },
+                ].map((sub) => {
+                  const isCur = factsSubTab === sub.id;
+                  return (
+                    <button
+                      key={sub.id}
+                      type="button"
+                      onClick={() => setFactsSubTab(sub.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-serif font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 cursor-pointer ${
+                        isCur
+                          ? 'bg-stone-900 text-white shadow-2xs'
+                          : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200'
+                      }`}
+                    >
+                      <sub.icon className="w-3.5 h-3.5" />
+                      <span>{sub.label}</span>
+                    </button>
+                  );
+                })}
               </div>
-            ) : (
-              <MissingDeep feature="涟漪效应与多源验证" note={deepNote} />
-            )}
-          </div>
-        )}
 
-        {activeTab === 'relevance_identity' && (
-          <RelevanceIdentityTab
-            article={article}
-            personaImpacts={article.personaImpacts || []}
-            activePersona={activePersona}
-            onSelectPersona={onSelectPersona}
-            onRunPersonaForecast={onRunPersonaForecast}
-          />
-        )}
+              {/* 渲染子视图 */}
+              <div>
+                {factsSubTab === 'seven' && (
+                  <SevenElementsTab
+                    article={article}
+                    onRunSkill={onRunSkill}
+                    contextArticles={contextArticles}
+                    onOpenArticle={onOpenArticle}
+                  />
+                )}
 
-        {activeTab === 'forecast_arena' && (
-          <ForecastArenaTab
-            article={article}
-            onSaveContract={onSaveContract}
-            onNavigateToMyFocus={() => onNavigateTab && onNavigateTab('my_focus')}
-          />
-        )}
+                {factsSubTab === 'timeline' && (
+                  <DialecticalMatrixSection
+                    article={article}
+                    onRunSkill={onRunSkill}
+                    sectionScope="background_only"
+                    showHeader={false}
+                  />
+                )}
 
-        {activeTab === 'deep_spectrum' &&
-          ((article.spectrumLayers && article.spectrumLayers.length > 0) ? (
-            <DeepSpectrumTab article={article} />
-          ) : (
-            <MissingDeep feature="五层光谱深度全览" note={deepNote} />
-          ))}
-      </div>
+                {factsSubTab === 'entity' && (
+                  <EntityCheckTab article={article} onRunSkill={onRunSkill} />
+                )}
 
-      {/* Continuous Cognitive Progression Guide (Next-Step Journey Card) */}
-      <div className="py-3 px-1 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-sans">
-        <div className="space-y-0.5">
-          <div className="text-xs font-serif font-bold text-stone-700">
-            {activeTab === 'seven_elements' && '事实已结构化拆解完毕 ➔ 下一步：进入「对象核查」，看当事人有没有回应、公司实况如何'}
-            {activeTab === 'entity_check' && '对象回应与公司实况已列出 ➔ 下一步：进入「因果与涟漪」，看事件如何传导扩散'}
-            {activeTab === 'logic_tree' && '因果链与涟漪传导已清晰 ➔ 下一步：切换为您的决策角色，评估机会与风险'}
-            {activeTab === 'relevance_identity' && '决策身份影响已明确 ➔ 下一步：进入「人机预测擂台」，提出您的独立预判与 AI 对抗'}
-            {activeTab === 'forecast_arena' && '预测契约已拟定 ➔ 下一步：查阅「深度全览」，用五层光谱通读全文'}
-            {activeTab === 'deep_spectrum' && '您已完整掌握该事件的全部认知维度 ➔ 可前往「我的关注」沉淀行动备忘录'}
-          </div>
+                {factsSubTab === 'logic' && (
+                  <div className="space-y-6">
+                    {article.logicTree ? (
+                      <LogicTreeTab logicTree={article.logicTree} />
+                    ) : (
+                      <MissingDeep feature="因果逻辑树" note={deepNote} />
+                    )}
+                    {article.rippleEffect ? (
+                      <div>
+                        <div className="mb-2 flex items-center gap-2 text-xs font-serif font-bold text-[#0284C7] uppercase tracking-wider">
+                          <Waves className="w-4 h-4" />
+                          <span>传导与涟漪 · 承接上面的因果链看影响如何扩散</span>
+                        </div>
+                        <RippleEffectTab rippleEffect={article.rippleEffect} />
+                      </div>
+                    ) : (
+                      <MissingDeep feature="涟漪效应与多源验证" note={deepNote} />
+                    )}
+                  </div>
+                )}
+
+                {factsSubTab === 'spectrum' &&
+                  (article.spectrumLayers && article.spectrumLayers.length > 0 ? (
+                    <DeepSpectrumTab article={article} />
+                  ) : (
+                    <MissingDeep feature="五层光谱深度全览" note={deepNote} />
+                  ))}
+              </div>
+
+              {/* 步骤流转引导 */}
+              <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs text-stone-500 font-serif">
+                  事实骨架核验完毕 ➔ 下一步：探究正反交锋的真正分歧
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkbenchStep('debate');
+                    window.scrollTo({ top: 380, behavior: 'smooth' });
+                  }}
+                  className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white rounded-xl text-xs font-serif font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>下一步：进入第 2 步 · 红蓝博弈</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* 第 2 步：红蓝博弈与真相 (The Truth & Debate) */}
+          {/* ────────────────────────────────────────────────────────── */}
+          {workbenchStep === 'debate' && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              <DialecticalMatrixSection
+                article={article}
+                onRunSkill={onRunSkill}
+                sectionScope="debate_only"
+                showHeader={false}
+              />
+
+              {/* 步骤流转引导 */}
+              <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs text-stone-500 font-serif">
+                  双方论据与数据核验完毕 ➔ 下一步：切换到您的角色视角看对策
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkbenchStep('identity');
+                    window.scrollTo({ top: 380, behavior: 'smooth' });
+                  }}
+                  className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white rounded-xl text-xs font-serif font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>下一步：进入第 3 步 · 与我何干</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* 第 3 步：与我何干 (Identity & Actions) */}
+          {/* ────────────────────────────────────────────────────────── */}
+          {workbenchStep === 'identity' && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              <RelevanceIdentityTab
+                article={article}
+                personaImpacts={article.personaImpacts || []}
+                activePersona={activePersona}
+                onSelectPersona={onSelectPersona}
+                onRunPersonaForecast={onRunPersonaForecast}
+              />
+
+              {/* 步骤流转引导 */}
+              <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
+                <span className="text-xs text-stone-500 font-serif">
+                  角色行动备忘已明确 ➔ 下一步：设定前瞻情景树与证伪红线
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkbenchStep('future');
+                    window.scrollTo({ top: 380, behavior: 'smooth' });
+                  }}
+                  className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white rounded-xl text-xs font-serif font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>下一步：进入第 4 步 · 未来推演与证伪</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* 第 4 步：未来推演与证伪 (Future & Invalidation) */}
+          {/* ────────────────────────────────────────────────────────── */}
+          {workbenchStep === 'future' && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              <TrendScenarioSection
+                article={article}
+                activePersona={activePersona}
+                onRunSkill={onRunSkill}
+                onSaveContract={onSaveContract}
+              />
+
+              {/* 预测擂台（按需折叠查看） */}
+              <div className="pt-4 border-t border-stone-200">
+                <details className="group">
+                  <summary className="cursor-pointer text-xs font-serif font-bold text-stone-600 hover:text-stone-950 flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200">
+                    <span className="flex items-center gap-2">
+                      <Crosshair className="w-4 h-4 text-red-600" />
+                      <span>查看高级预测对比：人机预测擂台</span>
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" />
+                  </summary>
+                  <div className="pt-3">
+                    <ForecastArenaTab
+                      article={article}
+                      onSaveContract={onSaveContract}
+                      onNavigateToMyFocus={() => onNavigateTab && onNavigateTab('my_focus')}
+                    />
+                  </div>
+                </details>
+              </div>
+            </div>
+          )}
         </div>
-
-        <button
-          onClick={() => {
-            if (activeTab === 'seven_elements') setActiveTab('entity_check');
-            else if (activeTab === 'entity_check') setActiveTab('logic_tree');
-            else if (activeTab === 'logic_tree') setActiveTab('relevance_identity');
-            else if (activeTab === 'relevance_identity') setActiveTab('forecast_arena');
-            else if (activeTab === 'forecast_arena') setActiveTab('deep_spectrum');
-            else if (activeTab === 'deep_spectrum' && onNavigateTab) {
-              onNavigateTab('my_focus');
-            }
-            window.scrollTo({ top: 400, behavior: 'smooth' });
-          }}
-          className="px-3 py-2 bg-stone-900 hover:bg-[#E3120B] text-white text-xs font-serif font-bold rounded-lg transition-all flex items-center space-x-1.5 shrink-0 self-start sm:self-auto"
-        >
-          <span>
-            {activeTab === 'seven_elements' && '进入对象核查'}
-            {activeTab === 'entity_check' && '进入因果与涟漪'}
-            {activeTab === 'logic_tree' && '进入身份透镜 (与我何干)'}
-            {activeTab === 'relevance_identity' && '进入人机预测擂台'}
-            {activeTab === 'forecast_arena' && '进入深度全览'}
-            {activeTab === 'deep_spectrum' && '沉淀至决策工作台'}
-          </span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      )}
 
       {/* Nuance In-depth Probe ("微观探针 / 针对本篇新闻向 AI 追问") */}
       <div className="bg-white border border-stone-300 rounded-xl overflow-hidden font-sans">

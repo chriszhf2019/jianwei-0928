@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
-import { NewsArticle } from '../../types';
-import { ArrowRight, Bookmark, Radio, ExternalLink, Share2, Check } from 'lucide-react';
+import { NewsArticle, UserPersona } from '../../types';
+import { 
+  ArrowRight, 
+  Bookmark, 
+  Radio, 
+  ExternalLink, 
+  Share2, 
+  Check, 
+  Scale, 
+  Sparkles, 
+  Compass, 
+  UserCheck, 
+  ChevronDown, 
+  ChevronUp,
+  Layers,
+  Zap,
+  AlertTriangle,
+  History
+} from 'lucide-react';
 import { formatArticleTime, isStaleArticle } from '../../utils/articleTime';
 import { monitorHits } from '../../utils/monitorKeywords';
 import { POSITIVE_WORDS, NEGATIVE_WORDS } from '../../utils/corpusMetrics';
@@ -156,6 +173,8 @@ interface StandardModeFeedProps {
   onOpenShareCard?: (article: NewsArticle) => void;
   /** 简洁模式 vs 专业模式：控制首页卡片展示密度 */
   analysisMode?: 'simple' | 'professional';
+  /** 当前用户选择的决策身份 */
+  selectedPersona?: UserPersona;
 }
 
 export const StandardModeFeed = React.memo(function StandardModeFeed({
@@ -175,8 +194,21 @@ export const StandardModeFeed = React.memo(function StandardModeFeed({
   contextArticles,
   onOpenShareCard,
   analysisMode = 'simple',
+  selectedPersona,
 }: StandardModeFeedProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedSkills, setExpandedSkills] = useState<Record<string, boolean>>({});
+  const [expandedEvolution, setExpandedEvolution] = useState<Record<string, boolean>>({});
+
+  const toggleExpandSkills = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedSkills((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleExpandEvolution = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedEvolution((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleCopyLink = React.useCallback((e: React.MouseEvent, article: NewsArticle) => {
     e.stopPropagation();
@@ -377,56 +409,230 @@ export const StandardModeFeed = React.memo(function StandardModeFeed({
               );
             })()}
 
-            {/* 速读卡：简洁版，重点保留结论、关键原因和前景 */}
-            {(() => {
-              const evidenceState = article.evidenceChain && article.evidenceChain.length > 0 ? '较强' : '待核验';
-              const analysisState = article.bullBearDebate ? '有争议' : '偏单一';
-              const forecastState = article.trendForecastText || (article.personaForecasts && article.personaForecasts.length > 0) ? '有前瞻' : '无明确前瞻';
-
-              return (
-                <div className="mb-3 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 via-stone-50 to-white p-3.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-amber-800 uppercase">
-                      速读
-                    </div>
-                    <div className="text-[10px] font-bold text-stone-500">
-                      {quickRead.label} · {meta?.credibility ? `可信度 ${meta.credibility}` : '观察中'}
-                    </div>
-                  </div>
-
-                  <div className="mt-2 flex flex-wrap gap-1.5 text-[9px] font-bold">
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-800">事实：{evidenceState}</span>
-                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800">分析：{analysisState}</span>
-                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-1 text-sky-800">预测：{forecastState}</span>
-                  </div>
-
-                  <p className="mt-2 text-sm sm:text-base font-serif font-black leading-snug text-stone-900">
-                    {quickRead.headline}
+            {/* ────────────────────────────────────────────────────────── */}
+            {/* 3秒 ➔ 30秒 ➔ 3分钟 渐进式决策穿透盒 (Progressive Decision Penetrator) */}
+            {/* ────────────────────────────────────────────────────────── */}
+            <div className="mb-3 rounded-xl border border-stone-200/90 bg-stone-50/80 p-3.5 space-y-3 shadow-xs">
+              {/* [3秒脉冲层] 一眼知晓：定性结论 + 利益损益警报 */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/70 pb-2.5">
+                <div className="flex items-start gap-2 flex-1 min-w-0">
+                  <span className="shrink-0 mt-0.5 px-2 py-0.5 rounded bg-stone-900 text-amber-300 font-mono text-[10px] font-bold tracking-wider flex items-center gap-1 shadow-xs">
+                    <Zap className="w-2.5 h-2.5 fill-amber-300" />
+                    3秒定调
+                  </span>
+                  <p className="text-sm font-serif font-black text-stone-950 leading-snug">
+                    “{article.oneSentenceVerdict || article.coreLogic?.essence || article.summary || article.title}”
                   </p>
+                </div>
+                {/* 利益关系标签 (根据当前身份或情绪判定) */}
+                <div className="shrink-0 flex items-center gap-1.5 self-start sm:self-auto">
+                  {(() => {
+                    const impact = selectedPersona
+                      ? (article.personaImpacts || []).find((p) => p.personaId === selectedPersona.id)
+                      : null;
+                    if (impact) {
+                      const isBenefit = impact.opportunity && !impact.threatRisk;
+                      const isThreat = Boolean(impact.threatRisk && !impact.opportunity);
+                      return (
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                          isBenefit
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                            : isThreat
+                            ? 'bg-rose-50 text-rose-800 border-rose-300'
+                            : 'bg-amber-50 text-amber-900 border-amber-300'
+                        }`}>
+                          <span>{selectedPersona?.name}</span>
+                          <span>{isBenefit ? '▲ 利好' : isThreat ? '▼ 承压' : '◼ 观察'}</span>
+                        </span>
+                      );
+                    }
+                    return (
+                      <span className="text-[10px] font-mono text-stone-500 bg-white border border-stone-200 px-2 py-0.5 rounded-full">
+                        {articleSentiment(article)}
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
 
-                  <div className="mt-2 flex flex-wrap gap-2 text-[11px] leading-relaxed text-stone-700">
-                    <span className="rounded-full border border-stone-200 bg-white px-2 py-1">
-                      <span className="font-bold text-stone-900">关键原因：</span> {compactText(quickRead.why)}
-                    </span>
-                    <span className="rounded-full border border-stone-200 bg-white px-2 py-1">
-                      <span className="font-bold text-stone-900">前景：</span> {compactText(quickRead.outlook)}
-                    </span>
+              {/* [30秒要害层] 决策核心三防线：真实依据 + 红蓝天平 + 前置失效红线 */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                {/* 1. 真实依据锚点 */}
+                <div className="bg-white rounded-lg p-2.5 border border-stone-200/80 space-y-1 text-xs font-serif flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-stone-500 pb-1 border-b border-stone-100 mb-1.5">
+                      <span className="font-bold text-stone-800 flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span>硬核事实依据</span>
+                      </span>
+                      <span className="text-emerald-700 bg-emerald-50 px-1 rounded text-[9px] font-bold">
+                        {article.evidenceChain?.[0]?.reliability || '原文锚定'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-700 leading-relaxed line-clamp-3">
+                      {article.evidenceChain?.[0]?.claim ||
+                       article.aiInterpretation?.basis ||
+                       (article.sevenElements?.why ? `动因：${article.sevenElements.why}` : article.summary || '基于抓取原文事实提纯')}
+                    </p>
+                  </div>
+                  {article.evidenceChain?.[0]?.quote && (
+                    <div className="text-[10px] font-sans text-stone-500 italic border-l-2 border-stone-300 pl-1.5 mt-1 line-clamp-1">
+                      “{article.evidenceChain[0].quote}”
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. 红蓝力量天平 */}
+                <div className="bg-white rounded-lg p-2.5 border border-stone-200/80 space-y-1 text-xs font-serif flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-stone-500 pb-1 border-b border-stone-100 mb-1.5">
+                      <span className="font-bold text-stone-800 flex items-center gap-1">
+                        <Scale className="w-3 h-3 text-[#E3120B]" />
+                        <span>红蓝多空对撞</span>
+                      </span>
+                      {article.bullBearDebate?.read && (
+                        <span className="text-amber-800 bg-amber-50 px-1 rounded text-[9px] font-bold line-clamp-1">
+                          {article.bullBearDebate.read}
+                        </span>
+                      )}
+                    </div>
+                    {article.bullBearDebate ? (
+                      <div className="space-y-1 text-[11px] leading-tight">
+                        {article.bullBearDebate.bull?.[0] && (
+                          <div className="flex items-start gap-1 text-emerald-950">
+                            <span className="font-bold text-emerald-700 shrink-0">多方:</span>
+                            <span className="line-clamp-1">{article.bullBearDebate.bull[0].point}</span>
+                          </div>
+                        )}
+                        {article.bullBearDebate.bear?.[0] && (
+                          <div className="flex items-start gap-1 text-rose-950">
+                            <span className="font-bold text-rose-700 shrink-0">反方:</span>
+                            <span className="line-clamp-1">{article.bullBearDebate.bear[0].point}</span>
+                          </div>
+                        )}
+                        {article.bullBearDebate.coreDispute && (
+                          <div className="text-[10px] text-stone-500 pt-0.5 line-clamp-1">
+                            焦点：{article.bullBearDebate.coreDispute}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-stone-500">
+                        {article.coreLogic?.essence ? `逻辑本质：${article.coreLogic.essence}` : '多空力量正在发酵，暂无尖锐对立分歧'}
+                      </p>
+                    )}
                   </div>
                 </div>
-              );
-            })()}
 
-            {/* 7W 事件模型 + 趋势/风险/关联背景整合盒 */}
-            {onRunSkill ? (
-              <CardInsightBox article={article} contextArticles={contextArticles} onRunSkill={onRunSkill} onOpenArticle={onSelectArticle} />
-            ) : (
-              <div className="bg-[#FAF8F5] border-l-4 border-[#E3120B] p-4 rounded-r-lg mb-2">
-                <div className="text-xs font-serif font-bold text-[#E3120B] uppercase tracking-wider mb-1">
-                  见微 · 一句话解读
+                {/* 3. 前置失效红线 (Anti-Fluff Invalidation) */}
+                <div className="bg-amber-50/50 rounded-lg p-2.5 border border-amber-200/70 space-y-1 text-xs font-serif flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between text-[10px] font-mono text-amber-900 pb-1 border-b border-amber-200/50 mb-1.5">
+                      <span className="font-bold flex items-center gap-1 text-amber-950">
+                        <AlertTriangle className="w-3 h-3 text-amber-600" />
+                        <span>前置失效红线 (何时推翻)</span>
+                      </span>
+                      <span className="text-[9px] font-bold text-amber-800 bg-amber-100/70 px-1 rounded">
+                        可证伪
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-950/90 leading-relaxed line-clamp-3">
+                      {(() => {
+                        if (typeof article.trendForecastText === 'object' && article.trendForecastText && 'invalidation' in article.trendForecastText) {
+                          return (article.trendForecastText as any).invalidation;
+                        }
+                        if (article.coreLogic?.counterIntuitive) {
+                          return `反直觉预警：${article.coreLogic.counterIntuitive}`;
+                        }
+                        if (article.aiInterpretation?.limits) {
+                          return `判定边界：${article.aiInterpretation.limits}`;
+                        }
+                        return '若上游核心参数、官方政策裁决或交付周期出现逆转，该核心论点即告失效。';
+                      })()}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm sm:text-base font-serif font-bold text-stone-900 leading-snug">
-                  “{article.oneSentenceVerdict || article.summary || article.title}”
-                </p>
+              </div>
+
+              {/* 针对身份的角色对策 */}
+              {selectedPersona && (
+                <div className="flex items-center justify-between gap-2 text-xs font-serif text-stone-800 bg-white rounded-lg px-3 py-2 border border-stone-200/80">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span className="font-bold text-stone-900 shrink-0">【{selectedPersona.name}行动备忘】</span>
+                    <span className="truncate text-stone-700">
+                      {(article.personaImpacts || []).find((p) => p.personaId === selectedPersona.id)?.recommendedAction ||
+                       article.impactScope || '保持对上下游核心交付节点与市场预期调整的敏锐跟踪'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded shrink-0 hidden sm:inline">
+                    针对性行动
+                  </span>
+                </div>
+              )}
+
+              {/* 事件前情演化链条 (如果有 backstoryTimeline) */}
+              {article.backstoryTimeline && article.backstoryTimeline.length > 0 && (
+                <div className="bg-white rounded-lg border border-stone-200/80 p-2.5 text-xs font-serif">
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={(e) => toggleExpandEvolution(article.id, e)}
+                      className="inline-flex items-center gap-1.5 text-stone-800 hover:text-stone-950 font-bold cursor-pointer"
+                    >
+                      <History className="w-3.5 h-3.5 text-stone-600" />
+                      <span>跨期事件演化脉络 · 追踪连续剧 ({article.backstoryTimeline.length}个前置转折)</span>
+                      {expandedEvolution[article.id] ? <ChevronUp className="w-3.5 h-3.5 text-stone-400" /> : <ChevronDown className="w-3.5 h-3.5 text-stone-400" />}
+                    </button>
+                    <span className="text-[10px] font-mono text-stone-400">历史因果连续树</span>
+                  </div>
+                  {expandedEvolution[article.id] && (
+                    <div className="mt-2.5 pt-2 border-t border-stone-100 space-y-2">
+                      {article.backstoryTimeline.map((item, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-[11px] leading-relaxed">
+                          <span className="font-mono text-stone-400 shrink-0 text-[10px] pt-0.5">{item.date}</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-stone-300 shrink-0 mt-1.5"></span>
+                          <div className="min-w-0 flex-1">
+                            <span className="font-bold text-stone-900">{item.event}</span>
+                            {item.relevance && (
+                              <span className="text-stone-500 ml-1">（{item.relevance}）</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* [3分钟穿透层] 底部操作条：轻量技能展开 + 3分钟全景深度研判 */}
+              <div className="pt-1 flex flex-wrap items-center justify-between gap-2 text-xs border-t border-stone-200/60">
+                {onRunSkill && (
+                  <button
+                    type="button"
+                    onClick={(e) => toggleExpandSkills(article.id, e)}
+                    className="inline-flex items-center gap-1 text-[11px] font-serif font-bold text-stone-600 hover:text-stone-950 transition-colors cursor-pointer py-1"
+                  >
+                    <span>{expandedSkills[article.id] ? '收起单项技能盒' : '展开快速技能盒 (7W/趋势/风险)'}</span>
+                    {expandedSkills[article.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => onSelectArticle(article)}
+                  className="ml-auto inline-flex items-center gap-1.5 text-xs font-serif font-black text-white bg-stone-900 hover:bg-[#E3120B] px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs"
+                >
+                  <span>进入 3分钟 全景深度研判</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* 可选展开的 7W / 趋势 / 风险盒 */}
+            {onRunSkill && expandedSkills[article.id] && (
+              <div className="mb-3 animate-in fade-in duration-150">
+                <CardInsightBox article={article} contextArticles={contextArticles} onRunSkill={onRunSkill} onOpenArticle={onSelectArticle} />
               </div>
             )}
 
@@ -506,10 +712,10 @@ export const StandardModeFeed = React.memo(function StandardModeFeed({
 
               <button
                 onClick={() => onSelectArticle(article)}
-                className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white text-xs font-serif font-bold rounded-lg flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-stone-900 hover:bg-[#E3120B] text-white text-xs font-serif font-bold rounded-lg flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer group/btn"
               >
-                <span>打开详情</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>深入 4 步研判</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </article>

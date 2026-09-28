@@ -29,11 +29,15 @@ import { TheoryExplainerModal, TheoryKey } from '../common/TheoryExplainerModal'
 interface DialecticalMatrixSectionProps {
   article: NewsArticle;
   onRunSkill?: (skill: NewsSkill, article: NewsArticle) => Promise<NewsArticle | null>;
+  sectionScope?: 'all' | 'debate_only' | 'background_only';
+  showHeader?: boolean;
 }
 
 export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> = ({
   article,
   onRunSkill,
+  sectionScope = 'all',
+  showHeader = true,
 }) => {
   const [loadingSkill, setLoadingSkill] = useState<string | null>(null);
   const [timelineExpanded, setTimelineExpanded] = useState(true);
@@ -57,28 +61,7 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
     if (article.quantitativeAnchors && article.quantitativeAnchors.length > 0) {
       return article.quantitativeAnchors;
     }
-    // 根据行业与分类派生高代表性定量锚点
-    const cat = article.category || '';
-    const title = article.title || '';
-    if (cat.includes('科技') || title.includes('AI') || title.includes('模型') || title.includes('芯片')) {
-      return [
-        { name: '行业算力投资 (CapEx)', value: '+42.5%', delta: '超预期', direction: 'bull' as const, benchmark: '历史中枢 +18%', meaning: '资本支出激增支撑多方叙事，但考验自由现金流造血能力' },
-        { name: '硬件交付周期 (Lead Time)', value: '28 周', delta: '+6 周', direction: 'bear' as const, benchmark: '正常水位 12-16 周', meaning: '交付瓶颈明显，反方挑刺供应链断点与量产爬坡阻力' },
-        { name: '商业化变现转化率', value: '4.8%', delta: '-1.2%', direction: 'bear' as const, benchmark: 'SaaS 基准 7.5%', meaning: '实际付费意愿弱于公关宣传预期，支撑做空方估值泡沫论' },
-        { name: '头部大厂研发留存率', value: '88.3%', delta: '持平', direction: 'neutral' as const, benchmark: '行业均值 82%', meaning: '核心人才未流失，短期研发架构保持稳固' },
-      ];
-    } else if (cat.includes('金融') || cat.includes('宏观') || title.includes('央行') || title.includes('利率')) {
-      return [
-        { name: '10Y 国债基准利差', value: '45 bps', delta: '-12 bps', direction: 'bull' as const, benchmark: '历史分位 25%', meaning: '流动性宽松利多风险资产估值修复' },
-        { name: '企业信用违约溢价', value: '185 bps', delta: '+22 bps', direction: 'bear' as const, benchmark: '警戒阈值 180 bps', meaning: '长尾企业偿债压力抬升，支撑反方审慎防踩雷论调' },
-        { name: 'M1-M2 剪刀差', value: '-4.6%', delta: '+0.8%', direction: 'neutral' as const, benchmark: '拐点确认需 > -2%', meaning: '资金活化有企稳迹象，但实体投资信心仍待验证' },
-      ];
-    }
-    return [
-      { name: '市场综合预期达成度', value: '92.4%', delta: '+4.1%', direction: 'bull' as const, benchmark: '行业中位数 88%', meaning: '基本盘韧性足，支撑主流正面情绪' },
-      { name: '反向监管与合规缓冲期', value: '45 天', delta: '-15 天', direction: 'bear' as const, benchmark: '标准流程 90 天', meaning: '政策紧箍咒提速，反方警惕突发合规制裁风险' },
-      { name: '多源交叉印证信噪比', value: '7.8/10', delta: '优', direction: 'neutral' as const, benchmark: '孤证阈值 4.0', meaning: '多机构发声确认，事实骨架清晰，争论集中于远期兑现' },
-    ];
+    return [];
   })();
 
   // 2. 媒体立场与异常沉默盲区雷达（Ground News 风格：谁在报道，谁在沉默）
@@ -86,17 +69,27 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
     if (article.mediaBlindspot) {
       return article.mediaBlindspot;
     }
-    // 派生真实感强烈的报道阵营分布
-    return {
-      breakdown: [
-        { category: '官方权威机构 / 官媒', count: 18, percentage: 46, stanceBias: '宏观定调 / 政策引导 / 稳预期' },
-        { category: '商业财经机构 / 投行', count: 14, percentage: 36, stanceBias: '产业影响 / 财报业绩 / 资本流向' },
-        { category: '垂直行业 / 科技专业媒体', count: 5, percentage: 13, stanceBias: '技术拆解 / 供应链追问' },
-        { category: '海外观察 / 独立评论', count: 2, percentage: 5, stanceBias: '地缘溢出 / 反垄断与合规保留' },
-      ],
-      silentSector: '垂直行业自媒体与一线供应链厂商',
-      blindspotWarning: '该事件在商业投行与官方媒体热度极高，但一线供应链与垂直自媒体发稿率不足 13%，存在显著的“行业内克制沉默”现象。这往往预示着商业合作保密协议 (NDA) 限制或行业内正在进行私下利益博弈。',
-    };
+    const occurrences = article.sourceOccurrences || [];
+    if (occurrences.length >= 2) {
+      const counts: Record<string, number> = {};
+      for (const occ of occurrences) {
+        const name = occ.sourceName || '其他独立媒体';
+        counts[name] = (counts[name] || 0) + 1;
+      }
+      const total = occurrences.length;
+      const breakdown = Object.entries(counts).map(([category, count]) => ({
+        category,
+        count,
+        percentage: Math.round((count / total) * 100),
+        stanceBias: '独立信源报道',
+      }));
+      return {
+        breakdown,
+        silentSector: '暂未检测到统计显著的异常回避群体',
+        blindspotWarning: `当前聚合了来自 ${total} 家不同媒体的真实交叉报道，信源覆盖相对均衡。`,
+      };
+    }
+    return null;
   })();
 
   // 触发生成某个具体技能
@@ -117,37 +110,39 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
   return (
     <div className="space-y-6 font-sans">
       {/* 模块主标题 */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-stone-900 pb-3">
-        <div className="flex items-center gap-2">
-          <Scale className="w-5 h-5 text-[#E3120B]" />
-          <div>
-            <h2 className="text-lg sm:text-xl font-serif font-black text-stone-950 tracking-tight">
-              深度探索 · 内幕溯源与红蓝博弈
-            </h2>
-            <p className="text-xs text-stone-500 font-serif">
-              穿透表面通稿：定量指标对冲、红蓝正反驳论、媒体沉默盲区透视
-            </p>
+      {showHeader && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-stone-900 pb-3">
+          <div className="flex items-center gap-2">
+            <Scale className="w-5 h-5 text-[#E3120B]" />
+            <div>
+              <h2 className="text-lg sm:text-xl font-serif font-black text-stone-950 tracking-tight">
+                深度探索 · 内幕溯源与红蓝博弈
+              </h2>
+              <p className="text-xs text-stone-500 font-serif">
+                穿透表面通稿：定量指标对冲、红蓝正反驳论、媒体沉默盲区透视
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowCognitiveGuide(!showCognitiveGuide)}
-            className="flex items-center gap-1.5 text-xs font-serif font-bold text-stone-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
-          >
-            <Info className="w-3.5 h-3.5 text-amber-700" />
-            <span>{showCognitiveGuide ? '收起认知方法论' : '💡 为什么这样设计？(认知方法论)'}</span>
-          </button>
-          <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-stone-500 bg-stone-100 px-2.5 py-1 rounded">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>对抗式审视 · 拒绝单向信息茧房</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCognitiveGuide(!showCognitiveGuide)}
+              className="flex items-center gap-1.5 text-xs font-serif font-bold text-stone-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+            >
+              <Info className="w-3.5 h-3.5 text-amber-700" />
+              <span>{showCognitiveGuide ? '收起认知方法论' : '💡 为什么这样设计？(认知方法论)'}</span>
+            </button>
+            <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono text-stone-500 bg-stone-100 px-2.5 py-1 rounded">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>对抗式审视 · 拒绝单向信息茧房</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 认知方法论展开引导卡片（帮助使用者理解科学思维） */}
-      {showCognitiveGuide && (
+      {showHeader && showCognitiveGuide && (
         <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5 space-y-3 animate-in fade-in duration-200">
           <div className="flex items-center justify-between border-b border-amber-200/80 pb-2">
             <div className="flex items-center gap-2 font-serif font-bold text-amber-950 text-sm">
@@ -189,9 +184,11 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
         </div>
       )}
 
-      {/* ────────────────────────────────────────────────────────── */}
-      {/* 1. 红蓝对抗思辨矩阵（Consensus vs Contrarian） */}
-      {/* ────────────────────────────────────────────────────────── */}
+      {(sectionScope === 'all' || sectionScope === 'debate_only') && (
+        <>
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* 1. 红蓝对抗思辨矩阵（Consensus vs Contrarian） */}
+          {/* ────────────────────────────────────────────────────────── */}
       <div className="rounded-2xl border-2 border-stone-900 bg-white p-5 sm:p-6 shadow-md space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3">
           <div className="flex items-center gap-2">
@@ -262,7 +259,7 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               {[
-                { key: 'A', text: 'A. 核心交付周期失控与供应链良率瓶颈' },
+                { key: 'A', text: 'A. 关键供应链脱节、交付履约断点或执行不及预期' },
                 { key: 'B', text: 'B. 客户付费意愿不足，自由现金流严重失血' },
                 { key: 'C', text: 'C. 行业监管突袭、垄断调查与反垄断重锤' },
                 { key: 'D', text: 'D. 护城河过浅，被开源或低价竞品快速稀释' },
@@ -424,62 +421,68 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
           <span className="text-xs text-stone-400 font-mono">对标行业基准数据</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {quantAnchors.map((item, idx) => (
-            <div
-              key={idx}
-              className={`rounded-xl border p-3.5 space-y-2 flex flex-col justify-between transition-all hover:shadow-xs ${
-                item.direction === 'bull'
-                  ? 'border-emerald-200 bg-emerald-50/30'
-                  : item.direction === 'bear'
-                    ? 'border-rose-200 bg-rose-50/30'
-                    : 'border-stone-200 bg-stone-50/60'
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between text-xs text-stone-500 font-serif mb-1">
-                  <span>{item.name}</span>
-                  <span
-                    className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                      item.direction === 'bull'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : item.direction === 'bear'
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-stone-200 text-stone-700'
-                    }`}
-                  >
-                    {item.direction === 'bull' ? '支撑多方' : item.direction === 'bear' ? '支撑空方' : '中性锚点'}
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl sm:text-2xl font-serif font-black text-stone-950">
-                    {item.value}
-                  </span>
-                  {item.delta && (
+        {quantAnchors.length === 0 ? (
+          <div className="py-6 px-4 text-center text-xs text-stone-500 font-serif border border-dashed border-stone-200 rounded-xl bg-stone-50/50">
+            当前文章暂无结构化定量锚点指标。可在下方查阅真实证据链，或点击右上角「生成红蓝对抗分析」由 AI 结合事实提炼。
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {quantAnchors.map((item, idx) => (
+              <div
+                key={idx}
+                className={`rounded-xl border p-3.5 space-y-2 flex flex-col justify-between transition-all hover:shadow-xs ${
+                  item.direction === 'bull'
+                    ? 'border-emerald-200 bg-emerald-50/30'
+                    : item.direction === 'bear'
+                      ? 'border-rose-200 bg-rose-50/30'
+                      : 'border-stone-200 bg-stone-50/60'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between text-xs text-stone-500 font-serif mb-1">
+                    <span>{item.name}</span>
                     <span
-                      className={`text-xs font-mono font-bold ${
+                      className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
                         item.direction === 'bull'
-                          ? 'text-emerald-700'
+                          ? 'bg-emerald-100 text-emerald-800'
                           : item.direction === 'bear'
-                            ? 'text-rose-700'
-                            : 'text-stone-600'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-stone-200 text-stone-700'
                       }`}
                     >
-                      {item.delta}
+                      {item.direction === 'bull' ? '支撑多方' : item.direction === 'bear' ? '支撑空方' : '中性锚点'}
                     </span>
-                  )}
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl sm:text-2xl font-serif font-black text-stone-950">
+                      {item.value}
+                    </span>
+                    {item.delta && (
+                      <span
+                        className={`text-xs font-mono font-bold ${
+                          item.direction === 'bull'
+                            ? 'text-emerald-700'
+                            : item.direction === 'bear'
+                              ? 'text-rose-700'
+                              : 'text-stone-600'
+                        }`}
+                      >
+                        {item.delta}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[10px] text-stone-400 font-mono mt-0.5">
+                    基准：{item.benchmark}
+                  </div>
                 </div>
-                <div className="text-[10px] text-stone-400 font-mono mt-0.5">
-                  基准：{item.benchmark}
-                </div>
-              </div>
 
-              <div className="text-[11px] text-stone-600 font-sans leading-tight pt-2 border-t border-stone-200/60">
-                {item.meaning}
+                <div className="text-[11px] text-stone-600 font-sans leading-tight pt-2 border-t border-stone-200/60">
+                  {item.meaning}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ────────────────────────────────────────────────────────── */}
@@ -534,7 +537,11 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
           </div>
         </div>
 
-        {blindspotTab === 'distribution' ? (
+        {!blindspotData ? (
+          <div className="py-6 px-4 text-center text-xs text-stone-500 font-serif border border-dashed border-stone-200 rounded-xl bg-stone-50/50">
+            暂无多媒体阵营分布与沉默盲区数据。当事件汇聚多源交叉报道或由 AI 深度提炼时将自动呈现阵营分布。
+          </div>
+        ) : blindspotTab === 'distribution' ? (
           <div className="space-y-3">
             {/* 多阵营比例堆叠条 */}
             <div className="h-3 w-full rounded-full overflow-hidden flex bg-stone-100">
@@ -591,7 +598,11 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
           </div>
         )}
       </div>
+      </>
+      )}
 
+      {(sectionScope === 'all' || sectionScope === 'background_only') && (
+        <>
       {/* ────────────────────────────────────────────────────────── */}
       {/* 4. 事件前因全景溯源（为什么现在爆发？历史时间线） */}
       {/* ────────────────────────────────────────────────────────── */}
@@ -787,6 +798,8 @@ export const DialecticalMatrixSection: React.FC<DialecticalMatrixSectionProps> =
             </div>
           )}
         </div>
+      )}
+      </>
       )}
 
       {/* 理论精解说明弹窗 */}

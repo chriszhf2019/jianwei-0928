@@ -13,6 +13,15 @@ import {
   sanitizeEnrichPayload,
   sanitizeEntityChecks,
 } from "./aiValidation";
+
+export const ANTI_FLUFF_AXIOMS = `
+【见微核心分析公理：极度针对、严禁片汤话、有理有据、通俗可懂】：
+1. 绝对禁绝泛化套话：严禁出现“充满机遇与挑战”、“保持审慎关注”、“有待进一步观察”、“各方观点不一”、“加强防范与监控”、“审慎决策”、“未来值得期待”等任何放在其他事件上也说得通的空话。违者一律属于不合格输出。
+2. 必须指名道姓、具体落点：所有主体、机构、技术、政策、环节必须明确写出真实名称（如具体企业名、技术路线、特定法规、财务指标），禁止使用“相关企业”、“有关部门”、“某核心产品”等模糊代称。
+3. 必须有理有据，陈述真实传导机制：解释为什么会这样、会如何传导时，必须说明因果传导的商业或物理机制（如：“产能受限导致交付周期拉长”、“毛利率承压挤压研发预算”），禁止把单纯的前后发生当作因果。
+4. 必须通俗透彻、直击痛点：用清晰、精准、有力的人话写作，避免生造假大空的晦涩术语，讲清楚对业务、资产或个人真实利益的影响。
+5. 必须具备可证伪性：预测与风险必须关联可观测、可计量的具体信号或反向指标，明确指出“在什么具体条件出现时该假设立即被推翻”。`;
+
 export interface RateLimiter { (req: express.Request, res: express.Response, next: express.NextFunction): void; }
 export function registerDeepEndpoints(app: express.Express, limit: RateLimiter): void {
   const applyRateLimit = limit;
@@ -83,7 +92,8 @@ app.post("/api/enrich", applyRateLimit, async (req, res) => {
 bullBearDebate：给这场正反方博弈建模——bull 列 2-3 条支持方/乐观方论点（point+basis），bear 列 2-3 条反对方/质疑方论点；coreDispute 点出双方真正的分歧焦点；read 给出当前力量判断（哪方论据更硬、或结果取决于什么），克制不喊单。
 coreLogic：给出这件事的底层逻辑分析——essence 用一句话讲清本质（第一性视角，不用事件名复述）；points 列 2-4 条结构性核心逻辑（驱动机制/约束/利益结构/演化规则）；counterIntuitive 点出最反直觉或最易误读处（没有就空字符串）。
 stakeholderImpact：列出受本事件影响的主要相关方 3-6 个（含类型与方向：benefit=受益/pressure=承压/neutral=中性，strength 1-5 表示影响强度），why 用可复核表述，宁缺毋滥。
-backstoryTimeline：给出今天这篇之前的 3-6 个关键相关节点（时间正序，最久远在前），只列确属铺垫/诱因/同类进展的节点，宁缺毋滥；不确定时间用“约”；若确实没有值得写的前情，返回空数组 []。`;
+backstoryTimeline：给出今天这篇之前的 3-6 个关键相关节点（时间正序，最久远在前），只列确属铺垫/诱因/同类进展的节点，宁缺毋滥；不确定时间用“约”；若确实没有值得写的前情，返回空数组 []。
+${ANTI_FLUFF_AXIOMS}`;
 
     const generated = await getOrCreateCached(key, async () => {
       const text = await callAI(prompt, { json: true, temperature: 0.3 });
@@ -177,7 +187,8 @@ app.post("/api/region/interpret", applyRateLimit, async (req, res) => {
 地区：${region}
 行业：${sector}
 真实文章材料：${JSON.stringify(articles)}
-要求：drivers 2-4 条，crossRegion 2-5 条，watch 2-5 条；不得补造数字、政策、公司动作或来源；没有依据时写“现有材料未说明”；crossRegion 是条件传导假设，不是概率预测。`;
+要求：drivers 2-4 条，crossRegion 2-5 条，watch 2-5 条；不得补造数字、政策、公司动作或来源；没有依据时写“现有材料未说明”；crossRegion 是条件传导假设，不是概率预测。
+${ANTI_FLUFF_AXIOMS}`;
 
   try {
     const generated = await getOrCreateCached(cacheKey, async () => {
@@ -242,7 +253,8 @@ app.post("/api/intelligence/frequency", applyRateLimit, async (req, res) => {
 主题：${topic}
 观察窗口：近 ${windowDays} 天
 真实文章材料：${JSON.stringify(articles)}
-要求：possibleDrivers 2-4 条，watch 2-5 条；因果只能是候选假设，不得写成已证实结论；不得补造政策、数字、公司动作或来源；要主动考虑“只是同一媒体连续报道”这种替代解释。`;
+要求：possibleDrivers 2-4 条，watch 2-5 条；因果只能是候选假设，不得写成已证实结论；不得补造政策、数字、公司动作或来源；要主动考虑“只是同一媒体连续报道”这种替代解释。
+${ANTI_FLUFF_AXIOMS}`;
 
   try {
     const generated = await getOrCreateCached(cacheKey, async () => {
@@ -302,7 +314,7 @@ async function runSingleSkill(
     publishedAt: String(publishedAt || ""),
     category: String(category || "外部信源"),
     content: String(content || ""),
-  });
+  }) + `\n${ANTI_FLUFF_AXIOMS}`;
   try {
     const generated = await getOrCreateCached(cacheKey, async () => {
       const text = await callAI(prompt, { json: true, temperature: 0.3 });
@@ -643,7 +655,8 @@ app.post("/api/skill/entitycheck", applyRateLimit, async (req, res) => {
 1. 这是 AI 记忆召回 + 输入材料推断，不是实时联网核实；“未见公开回应”只表示输入材料未显示回应，不能写成“经核实无人回应”。
 2. keyFinancials 等经营数据若不在输入材料中，只能给“待核验”或极克制的定性描述，不得编造精确数字、市值、收入或股价。
 3. responseUrl 必须真实可访问，拿不准就 null；responseQuote 必须能对应原文，不能改写。
-4. 每个对象 1 条，最多 8 条，宁缺毋滥；不要给确定性买卖或投资指令。`;
+4. 每个对象 1 条，最多 8 条，宁缺毋滥；不要给确定性买卖或投资指令。
+${ANTI_FLUFF_AXIOMS}`;
 
   try {
     const generated = await getOrCreateCached(cacheKey, async () => {
@@ -745,7 +758,8 @@ app.post("/api/skill/personaforecast", applyRateLimit, async (req, res) => {
 正文/要点：${content || "请基于标题克制推断"}
 已有上下文（供参考，勿编造与之矛盾的硬数据）：
 ${extraContext || "（暂无；请基于标题与常识，信息不足时在 scenario 中明确写‘取决于……’）"}
-要求：band 只是模型估计、务必克制；triggers/falsify 必须具体到可观察的数据或事件；不得臆造硬数据；信息不足就明说取决于什么。scenario/band 均为 AI 观点而非事实结论。`;
+要求：band 只是模型估计、务必克制；triggers/falsify 必须具体到可观察的数据或事件；不得臆造硬数据；信息不足就明说取决于什么。scenario/band 均为 AI 观点而非事实结论。
+${ANTI_FLUFF_AXIOMS}`;
 
   try {
     const generated = await getOrCreateCached(cacheKey, async () => {

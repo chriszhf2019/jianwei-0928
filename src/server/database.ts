@@ -15,6 +15,17 @@ function ensureDirectory(): void {
 
 let _dbInstance: DatabaseSync | null = null;
 
+export function closeDatabase(): void {
+  if (_dbInstance) {
+    try {
+      _dbInstance.close();
+    } catch {
+      /* ignore */
+    }
+    _dbInstance = null;
+  }
+}
+
 function openDatabase(): DatabaseSync {
   if (_dbInstance) return _dbInstance;
   ensureDirectory();
@@ -2276,6 +2287,7 @@ export function restoreDatabaseBackup(
   }
   const rollbackFile = `${DB_FILE}.rollback-${Date.now()}`;
   let movedOriginal = false;
+  closeDatabase();
   try {
     if (fs.existsSync(DB_FILE)) {
       fs.renameSync(DB_FILE, rollbackFile);
@@ -2284,6 +2296,7 @@ export function restoreDatabaseBackup(
     fs.renameSync(restoreTemp, DB_FILE);
     if (fs.existsSync(restoreManifest)) fs.unlinkSync(restoreManifest);
     fs.chmodSync(DB_FILE, 0o600);
+    closeDatabase();
     const restored = databaseIntegrityCheck(DB_FILE);
     if (!restored.ok) throw new Error(restored.detail);
     return {
@@ -2293,6 +2306,7 @@ export function restoreDatabaseBackup(
       articles: restored.articles,
     };
   } catch (error: any) {
+    closeDatabase();
     try {
       if (fs.existsSync(DB_FILE)) fs.unlinkSync(DB_FILE);
       if (movedOriginal && fs.existsSync(rollbackFile)) fs.renameSync(rollbackFile, DB_FILE);

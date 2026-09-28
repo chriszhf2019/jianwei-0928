@@ -11,7 +11,7 @@ import { registerAnnotationRoutes } from "./src/server/annotations";
 import { registerBriefingRoutes, startBriefingScheduler } from "./src/server/briefing";
 import { startFeedScheduler } from "./src/server/scheduler";
 import { scheduledBackupStatus, startBackupScheduler } from "./src/server/backupScheduler";
-import { registerDeepEndpoints } from "./src/server/deepEndpoints";
+import { registerDeepEndpoints, ANTI_FLUFF_AXIOMS } from "./src/server/deepEndpoints";
 import { registerSearchRoutes } from "./src/server/searchRoutes";
 import {
   settings,
@@ -1103,7 +1103,8 @@ app.post("/api/analyze", applyRateLimit, async (req, res) => {
 5. sevenElements 中 what/who/when/where 属于事实层，只能写输入材料可查证的内容，缺失就写“未说明”，不得用模型常识补全；why/how/soWhat 属于解释层，必须建立在事实层之上，并写出依据或条件，不能凭空定性。
 6. logicTree 必须是一条有方向的因果链：rootCause 是始发根因（必要起点），nodes 按 cause → mid_effect → market_impact 顺序排列；每个节点必须说明“上一步如何传导到这一步”，不得把仅同时发生、相关性或背景信息当作因果；variableWeights 是模型对驱动因素方向的相对重要性判断，不是概率，不得把 weight 包装成命中率。
 7. rippleEffect 必须按时间递进与影响范围扩散展开：stages 固定为“一阶影响（直接冲击）→ 二阶影响（次级联动）→ 三阶影响（结构与宏观重塑）”，不得把并列观点、同层事实当成三阶传导；title/items 用“可能/取决于/若…则…”等条件假设表达，timeframe 与 severity 是估计范围，不是概率，也不得写成已发生事实；knowledgeGraph 只用于定位相关实体与产业拓扑，不表示因果结论。
-8. personaImpacts 必须落到每个身份的真实立场：coreImpact 写最直接的变化，opportunity/threatRisk 写条件化机会与风险，recommendedAction 用“若…可考虑…”等克制句式；不得把六个身份写成同一套泛泛套话，也不得给出确定性买卖或投资指令。`;
+8. personaImpacts 必须落到每个身份的真实立场：coreImpact 写最直接的变化，opportunity/threatRisk 写条件化机会与风险，recommendedAction 用“若…可考虑…”等克制句式；不得把六个身份写成同一套泛泛套话，也不得给出确定性买卖或投资指令。
+${ANTI_FLUFF_AXIOMS}`;
 
     const text = await callAI(prompt, { json: true, temperature: 0.3 });
     let parsed;
@@ -1158,7 +1159,8 @@ ${JSON.stringify((contextArticles || []).slice(0, 3))}
 1. 语言具备《经济学人》和麦肯锡战略简报的严密逻辑与高穿透力；
 2. 结构清晰：分为【情报定性】、【传导逻辑】、【对您身份的直接机会与威胁】、【具体行动建议】；
 3. 严格引用具体事实与量化线索作为论据支撑；
-4. 控制在 260 - 380 字之间。`;
+4. 控制在 260 - 380 字之间。
+${ANTI_FLUFF_AXIOMS}`;
 
     const text = await callAI(prompt, { temperature: 0.35 });
 
@@ -1206,7 +1208,8 @@ ${JSON.stringify(articleContext || {})}
 请遵循见微的“报刊为骨，数据为翼”原则：
 1. 语言凝练、克制、一针见血，具有《经济学人》和顶级智库的洞察力；
 2. 明确指出新闻中哪项“微观细节”或“证据链”支撑了你的判断；
-3. 回答控制在 180-260 字之间，分点清晰。`;
+3. 回答控制在 180-260 字之间，分点清晰。
+${ANTI_FLUFF_AXIOMS}`;
 
     const text = await callAI(prompt, { temperature: 0.4 });
 
