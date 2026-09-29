@@ -18,7 +18,15 @@ import {
   Flame,
   FileText,
   Calendar,
-  EyeOff
+  EyeOff,
+  Scale,
+  Zap,
+  CheckCircle2,
+  AlertTriangle,
+  ShieldAlert,
+  Database,
+  MapPin,
+  Eye
 } from 'lucide-react';
 import { PrimaryNavTab } from '../types';
 
@@ -156,8 +164,40 @@ export const CognitiveModelModal: React.FC<CognitiveModelModalProps> = ({
           icon: <Calendar className="w-4 h-4 text-[#E3120B]" />
         }
       ]
+    },
+    {
+      id: 4,
+      code: 'L4',
+      name: '概率校准与防篡改账本层 (Calibration & Superforecasting)',
+      tagline: '拒绝事后诸葛亮 · Brier 校准 · 契约存证',
+      color: 'border-purple-600 bg-purple-50 text-purple-950',
+      badgeColor: 'bg-purple-600 text-white',
+      accentColor: 'text-purple-700',
+      coreValue: '让预测拥有确定性的复盘闭环。预测下注即锁定哈希时间戳与不可逆记录，到期后根据客观事实判定，持续校准认知偏差。',
+      features: [
+        {
+          title: '预测防篡改账本 (Prediction Ledger)',
+          desc: '创建后不可覆盖、到期只能锁定裁决一次，保证预测可信度与合规存证。',
+          tabTarget: 'my_focus' as PrimaryNavTab,
+          icon: <ShieldCheck className="w-4 h-4 text-purple-600" />
+        },
+        {
+          title: 'Brier 分数与概率校准分桶',
+          desc: '严格以 Brier 分数和 Log Loss 评估预测胜率，直观识别过度自信与过度悲观。',
+          tabTarget: 'my_focus' as PrimaryNavTab,
+          icon: <Workflow className="w-4 h-4 text-purple-600" />
+        },
+        {
+          title: '前置失效红线触发监控',
+          desc: '为每一个核心推论建立前置反转指标，一旦关键条件触发即时预警。',
+          tabTarget: 'home' as PrimaryNavTab,
+          icon: <GitCommit className="w-4 h-4 text-purple-600" />
+        }
+      ]
     }
   ];
+
+  const [activeView, setActiveView] = useState<'layers' | 'diagram'>('diagram');
 
   return (
     <AnimatePresence>
@@ -177,117 +217,380 @@ export const CognitiveModelModal: React.FC<CognitiveModelModalProps> = ({
               <span className="px-2 py-0.5 bg-[#E3120B] text-white text-[10px] font-mono font-bold uppercase rounded">
                 Genway Cognitive Paradigm
               </span>
-              <span className="text-xs font-mono text-stone-500">统一认知全景模型</span>
+              <span className="text-xs font-mono text-stone-500">统一认知与全景功能拓扑图</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-black text-stone-950">
-              「见微」四阶十二层新闻认知与决策系统模型
+              「见微」全景决策中枢与系统数据流拓扑图
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-3xl">
-              新闻不是碎片化的标题，而是一个包含「信源验真 → 事实解构 → 因果拓扑 → 决策行动」的完整自闭环系统。
+              新闻不是碎片化的标题，而是一个包含「信源摄入 → 验真去伪 → 渐进穿透 → 因果对撞 → 身份行动 → 防篡改校准」的完整闭环外脑系统。
             </p>
+
+            {/* View Switcher: Diagram vs Hierarchy */}
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setActiveView('diagram')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeView === 'diagram'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'bg-white border border-stone-300 text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                <span>全景系统数据流图 (Visual Architecture Flow)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('layers')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-serif font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeView === 'layers'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'bg-white border border-stone-300 text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                <GitCommit className="w-3.5 h-3.5 text-emerald-400" />
+                <span>五阶十五层认知阶梯 (Cognitive Hierarchy)</span>
+              </button>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-stone-500 hover:text-stone-950 rounded-lg hover:bg-stone-200 transition-colors"
+            className="p-2 text-stone-500 hover:text-stone-950 rounded-lg hover:bg-stone-200 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 4-Stage Horizontal Pipeline Visualizer */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-          {layers.map((l, idx) => {
-            const isSelected = selectedLayer === idx;
-            return (
-              <div
-                key={l.id}
-                onClick={() => setSelectedLayer(idx)}
-                className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
-                  isSelected
-                    ? 'border-stone-950 bg-stone-900 text-white shadow-md scale-[1.02]'
-                    : 'border-stone-300 bg-white text-stone-900 hover:border-stone-500'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded ${
-                    isSelected ? 'bg-stone-800 text-stone-200' : 'bg-stone-100 text-stone-700'
-                  }`}>
-                    {l.code}
-                  </span>
-                  <span className="text-[11px] font-serif font-bold text-stone-400">
-                    第 {idx + 1} 阶
-                  </span>
-                </div>
-                <div className="text-xs font-serif font-bold line-clamp-1">
-                  {l.name.split(' ')[0]}
-                </div>
-                <div className={`text-[10px] mt-1 line-clamp-1 ${
-                  isSelected ? 'text-stone-300' : 'text-stone-500'
-                }`}>
-                  {l.tagline}
-                </div>
+        {activeView === 'diagram' ? (
+          /* ────────────────────────────────────────────────────────── */
+          /* 全景系统功能拓扑与数据流图 (Visual Architecture Flow) */
+          /* ────────────────────────────────────────────────────────── */
+          <div className="space-y-4">
+            <div className="bg-stone-900 text-stone-100 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                  SYSTEM ARCHITECTURE & INTELLIGENCE PIPELINE
+                </span>
+                <h3 className="text-base font-serif font-black text-white mt-0.5">
+                  见微 6 步决策引擎数据流动拓扑
+                </h3>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Active Layer Deep Dive Showcase */}
-        {(() => {
-          const current = layers[selectedLayer];
-          return (
-            <div className={`border-2 rounded-2xl p-5 sm:p-6 space-y-5 ${current.color}`}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-300 pb-3">
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2.5 py-1 rounded font-mono text-xs font-bold ${current.badgeColor}`}>
-                    {current.code}
-                  </span>
-                  <h3 className="text-lg font-serif font-black text-stone-950">
-                    {current.name}
-                  </h3>
-                </div>
-                <span className="text-xs font-serif font-bold text-stone-700">
-                  {current.tagline}
+              <div className="flex items-center gap-2 text-xs font-mono text-stone-300">
+                <span className="inline-flex items-center gap-1 bg-stone-800 px-2 py-1 rounded border border-stone-700">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  零幻觉保真
+                </span>
+                <span className="inline-flex items-center gap-1 bg-stone-800 px-2 py-1 rounded border border-stone-700">
+                  <Scale className="w-3 h-3 text-red-400" />
+                  红蓝对抗
+                </span>
+                <span className="inline-flex items-center gap-1 bg-stone-800 px-2 py-1 rounded border border-stone-700">
+                  <Database className="w-3 h-3 text-purple-400" />
+                  防篡改账本
                 </span>
               </div>
+            </div>
 
-              {/* Core Value Statement */}
-              <div className="p-3.5 bg-white/80 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 font-serif leading-relaxed">
-                <strong>层级使命：</strong> {current.coreValue}
+            {/* 6-Step Visual Flow Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              {/* Step 1 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-emerald-200 hover:border-emerald-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded">
+                    01 · 源端摄入
+                  </span>
+                  <Database className="w-4 h-4 text-emerald-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  全球信源与去重收敛
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                    <span>多源 RSS/Atom 抓取 + 外部 URL 投递</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                    <span><strong>母公司集团归一</strong>：通稿收敛为单一来源</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                    <span>报道阵营审计：谁在密集报道，谁在沉默</span>
+                  </li>
+                </ul>
               </div>
 
-              {/* 3 Linked Features in this Layer */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {current.features.map((feat, fIdx) => (
-                  <div
-                    key={fIdx}
-                    className="bg-white p-4 rounded-xl border border-stone-300 hover:border-stone-900 transition-all flex flex-col justify-between space-y-3 group"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center space-x-1.5 font-serif font-bold text-xs text-stone-950">
-                        {feat.icon}
-                        <span>{feat.title}</span>
-                      </div>
-                      <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
-                        {feat.desc}
-                      </p>
-                    </div>
+              {/* Step 2 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-blue-200 hover:border-blue-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded">
+                    02 · 验真降噪
+                  </span>
+                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  事实锚定与反片汤话
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-blue-500"></span>
+                    <span><strong>SSRF 防御</strong>：阻断内网 IP、私网伪造</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-blue-500"></span>
+                    <span><strong>原文引句指纹对比</strong>：严防断章取义</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-blue-500"></span>
+                    <span><code>ANTI_FLUFF</code> 公理：清除万能废话</span>
+                  </li>
+                </ul>
+              </div>
 
-                    <button
-                      onClick={() => {
-                        onNavigateTab(feat.tabTarget);
-                        onClose();
-                      }}
-                      className="inline-flex items-center space-x-1 text-xs font-serif font-bold text-stone-900 hover:text-[#E3120B] self-start pt-2 border-t border-stone-100 w-full"
-                    >
-                      <span>前往功能体验</span>
-                      <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                ))}
+              {/* Step 3 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-amber-200 hover:border-amber-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
+                    03 · 交付穿透
+                  </span>
+                  <Zap className="w-4 h-4 text-amber-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  3秒 ➔ 30秒 ➔ 3分钟穿透
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-amber-500"></span>
+                    <span><strong>3秒脉冲</strong>：一句话定调 + 损益警报</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-amber-500"></span>
+                    <span><strong>30秒要害</strong>：硬核依据 + 红蓝多空 + 失效红线</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-amber-500"></span>
+                    <span><strong>3分钟全景</strong>：完整因果链与拓扑展开</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Step 4 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-rose-200 hover:border-rose-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-rose-100 text-rose-900 px-2 py-0.5 rounded">
+                    04 · 深度对抗
+                  </span>
+                  <Scale className="w-4 h-4 text-rose-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  因果树与红蓝博弈
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-rose-500"></span>
+                    <span><strong>因果逻辑树</strong>：始发根因 ➔ 产业链传导</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-rose-500"></span>
+                    <span><strong>红蓝对抗天平</strong>：多空论据 + 力量强弱读数</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-rose-500"></span>
+                    <span><strong>三阶涟漪效应</strong>：即时震荡 ➔ 洗牌 ➔ 宏观重构</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Step 5 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-teal-200 hover:border-teal-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-teal-100 text-teal-900 px-2 py-0.5 rounded">
+                    05 · 决策映射
+                  </span>
+                  <UserCheck className="w-4 h-4 text-teal-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  身份透镜与防线盯盘
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-teal-500"></span>
+                    <span><strong>六大决策透镜</strong>：投资/管理/技术/销售切片</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-teal-500"></span>
+                    <span><strong>业务资产防线</strong>：上游材料、客户依赖雷达</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-teal-500"></span>
+                    <span><strong>明天点名</strong>：重大节点灰犀牛预警</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Step 6 */}
+              <div className="bg-white rounded-xl p-4 border-2 border-purple-200 hover:border-purple-500 transition-all space-y-2 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold bg-purple-100 text-purple-900 px-2 py-0.5 rounded">
+                    06 · 终局进化
+                  </span>
+                  <TrendingUp className="w-4 h-4 text-purple-600" />
+                </div>
+                <h4 className="font-serif font-black text-sm text-stone-950">
+                  防篡改账本与校准进化
+                </h4>
+                <ul className="text-xs text-stone-600 space-y-1 font-sans">
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                    <span><strong>防篡改账本</strong>：SHA-256 哈希存证，拒绝事后改口</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                    <span><strong>Brier Score 回测</strong>：严格计算概率准确度</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-purple-500"></span>
+                    <span><strong>魔鬼代言人</strong>：针对个人偏误强制反向测试</span>
+                  </li>
+                </ul>
               </div>
             </div>
-          );
-        })()}
+
+            {/* Quick Navigation CTA to Modules */}
+            <div className="bg-stone-100 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2 text-xs font-serif">
+              <span className="text-stone-700 font-bold">
+                快速前往核心功能模块体验：
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => { onNavigateTab('home'); onClose(); }}
+                  className="px-2.5 py-1 bg-white hover:bg-stone-200 border border-stone-300 rounded font-bold text-stone-900 cursor-pointer"
+                >
+                  ⚡ 首页 3-30-3 决策穿透
+                </button>
+                <button
+                  onClick={() => { onNavigateTab('intelligence'); onClose(); }}
+                  className="px-2.5 py-1 bg-white hover:bg-stone-200 border border-stone-300 rounded font-bold text-stone-900 cursor-pointer"
+                >
+                  🔥 今日情报脉搏 & 盲区
+                </button>
+                <button
+                  onClick={() => { onNavigateTab('topics'); onClose(); }}
+                  className="px-2.5 py-1 bg-white hover:bg-stone-200 border border-stone-300 rounded font-bold text-stone-900 cursor-pointer"
+                >
+                  🌳 专题档案与因果树
+                </button>
+                <button
+                  onClick={() => { onNavigateTab('my_focus'); onClose(); }}
+                  className="px-2.5 py-1 bg-white hover:bg-stone-200 border border-stone-300 rounded font-bold text-stone-900 cursor-pointer"
+                >
+                  🎯 我的关注与预测校准账本
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ────────────────────────────────────────────────────────── */
+          /* 五阶十五层认知阶梯视图 (Cognitive Hierarchy) */
+          /* ────────────────────────────────────────────────────────── */
+          <div className="space-y-5">
+            {/* 5-Stage Horizontal Pipeline Visualizer */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+              {layers.map((l, idx) => {
+                const isSelected = selectedLayer === idx;
+                return (
+                  <div
+                    key={l.id}
+                    onClick={() => setSelectedLayer(idx)}
+                    className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                      isSelected
+                        ? 'border-stone-950 bg-stone-900 text-white shadow-md scale-[1.02]'
+                        : 'border-stone-300 bg-white text-stone-900 hover:border-stone-500'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded ${
+                        isSelected ? 'bg-stone-800 text-stone-200' : 'bg-stone-100 text-stone-700'
+                      }`}>
+                        {l.code}
+                      </span>
+                      <span className="text-[11px] font-serif font-bold text-stone-400">
+                        第 {idx + 1} 阶
+                      </span>
+                    </div>
+                    <div className="text-xs font-serif font-bold line-clamp-1">
+                      {l.name.split(' ')[0]}
+                    </div>
+                    <div className={`text-[10px] mt-1 line-clamp-1 ${
+                      isSelected ? 'text-stone-300' : 'text-stone-500'
+                    }`}>
+                      {l.tagline}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Active Layer Deep Dive Showcase */}
+            {(() => {
+              const current = layers[selectedLayer] || layers[0];
+              return (
+                <div className={`border-2 rounded-2xl p-5 sm:p-6 space-y-5 ${current.color}`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-300 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2.5 py-1 rounded font-mono text-xs font-bold ${current.badgeColor}`}>
+                        {current.code}
+                      </span>
+                      <h3 className="text-lg font-serif font-black text-stone-950">
+                        {current.name}
+                      </h3>
+                    </div>
+                    <span className="text-xs font-serif font-bold text-stone-700">
+                      {current.tagline}
+                    </span>
+                  </div>
+
+                  {/* Core Value Statement */}
+                  <div className="p-3.5 bg-white/80 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 font-serif leading-relaxed">
+                    <strong>层级使命：</strong> {current.coreValue}
+                  </div>
+
+                  {/* Linked Features in this Layer */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {current.features.map((feat, fIdx) => (
+                      <div
+                        key={fIdx}
+                        className="bg-white p-4 rounded-xl border border-stone-300 hover:border-stone-900 transition-all flex flex-col justify-between space-y-3 group"
+                      >
+                        <div className="space-y-1.5">
+                          <div className="flex items-center space-x-1.5 font-serif font-bold text-xs text-stone-950">
+                            {feat.icon}
+                            <span>{feat.title}</span>
+                          </div>
+                          <p className="text-[11px] text-stone-600 font-sans leading-relaxed">
+                            {feat.desc}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            onNavigateTab(feat.tabTarget);
+                            onClose();
+                          }}
+                          className="inline-flex items-center space-x-1 text-xs font-serif font-bold text-stone-900 hover:text-[#E3120B] self-start pt-2 border-t border-stone-100 w-full cursor-pointer"
+                        >
+                          <span>前往该功能</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         {/* Anti-Fluff Delivery Axioms */}
         <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4 sm:p-5 space-y-2.5">

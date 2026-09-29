@@ -46,6 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectPersona,
   onOpenSearch,
   onOpenAnalyzeModal,
+  onOpenCognitiveModel,
   onOpenSettings,
   onOpenSubscription,
   onOpenWeChatModal,
@@ -139,6 +140,18 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <QrCode className="w-4 h-4 text-[#07C160]" />
                 <span className="hidden sm:inline text-xs font-serif font-bold text-stone-700">小程序</span>
+              </button>
+            )}
+
+            {/* Cognitive & Feature Architecture Map */}
+            {onOpenCognitiveModel && (
+              <button
+                onClick={onOpenCognitiveModel}
+                className="p-2 sm:px-3 sm:py-2 text-stone-700 hover:text-stone-950 hover:bg-stone-200/80 rounded-lg border border-stone-300/80 bg-white/60 transition-colors flex items-center space-x-1.5"
+                title="全景功能拓扑与认知架构图"
+              >
+                <Layers className="w-4 h-4 text-indigo-600" />
+                <span className="hidden sm:inline text-xs font-serif font-bold text-stone-700">功能图谱</span>
               </button>
             )}
 
